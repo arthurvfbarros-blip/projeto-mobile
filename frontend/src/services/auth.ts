@@ -1,19 +1,21 @@
-export class InvalidCredentialsError extends Error {
-  remainingAttempts: number;
+import { postJson } from '@/services/api';
+import { saveSession, type Session } from '@/services/session';
 
-  constructor(remainingAttempts: number) {
-    super('E-mail ou senha inválidos');
-    this.name = 'InvalidCredentialsError';
-    this.remainingAttempts = remainingAttempts;
-  }
-}
+type LoginResponse = {
+  accessToken: string;
+  tokenType: 'Bearer';
+  expiresIn: number;
+  usuario: Session['usuario'];
+};
 
-// Simulação temporária enquanto o backend não tem a rota de login:
-// a senha "123456" entra com qualquer e-mail, qualquer outra senha falha.
-export async function signIn(email: string, password: string): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+export async function signIn(email: string, password: string): Promise<Session> {
+  const response = await postJson<LoginResponse>('/auth/login', { email, senha: password });
 
-  if (!email || password !== '123456') {
-    throw new InvalidCredentialsError(3);
-  }
+  const session: Session = {
+    accessToken: response.accessToken,
+    expiresAt: Date.now() + response.expiresIn * 1000,
+    usuario: response.usuario,
+  };
+  await saveSession(session);
+  return session;
 }

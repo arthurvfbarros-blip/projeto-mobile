@@ -1,36 +1,53 @@
 import { Image } from 'expo-image';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Button, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlertBanner } from '@/components/alert-banner';
 import { TextField } from '@/components/text-field';
 import { useAppTheme } from '@/constants/theme';
-import { InvalidCredentialsError, signIn } from '@/services/auth';
+import { ApiError, NetworkError } from '@/services/api';
+import { signIn } from '@/services/auth';
+
+type FieldErrors = {
+  email?: string;
+  password?: string;
+};
 
 // US18 - Login (Figma: "Protótipo navegável 1", estados padrão, erro, carregando e vazio)
 export default function LoginScreen() {
   const { colors } = useAppTheme();
+  const { contaCriada } = useLocalSearchParams<{ contaCriada?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [bannerMessage, setBannerMessage] = useState<string | null>(null);
 
   const isEmpty = !email.trim() || !password;
-  const hasError = remainingAttempts !== null;
 
   async function handleSignIn() {
     if (loading || isEmpty) return;
 
     setLoading(true);
-    setRemainingAttempts(null);
+    setFieldErrors({});
+    setBannerMessage(null);
     try {
       await signIn(email.trim(), password);
       // TODO: ir para a área do cliente quando a primeira tela dela existir.
     } catch (error) {
-      if (!(error instanceof InvalidCredentialsError)) throw error;
-      setRemainingAttempts(error.remainingAttempts);
+      if (error instanceof ApiError && error.status === 401) {
+        setFieldErrors({ password: error.message });
+      } else if (error instanceof ApiError && Object.keys(error.fields).length > 0) {
+        setFieldErrors({ email: error.fields.email, password: error.fields.senha });
+      } else if (error instanceof ApiError || error instanceof NetworkError) {
+        setBannerMessage(error.message);
+      } else {
+        console.error(error);
+        setBannerMessage('Não foi possível entrar. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -57,6 +74,7 @@ export default function LoginScreen() {
           value={email}
           onChangeText={setEmail}
           editable={!loading}
+          error={fieldErrors.email}
           keyboardType="email-address"
           autoCapitalize="none"
           autoComplete="email"
@@ -69,7 +87,7 @@ export default function LoginScreen() {
           value={password}
           onChangeText={setPassword}
           editable={!loading}
-          error={hasError ? 'E-mail ou senha inválidos' : undefined}
+          error={fieldErrors.password}
           secureTextEntry
           autoComplete="current-password"
           textContentType="password"
@@ -90,21 +108,25 @@ export default function LoginScreen() {
           {loading ? 'Entrando...' : 'Entrar'}
         </Button>
 
-        {hasError && (
-          <AlertBanner>
-            {`Você tem mais ${remainingAttempts} ${remainingAttempts === 1 ? 'tentativa' : 'tentativas'} antes do bloqueio temporário de 15 minutos.`}
-          </AlertBanner>
-        )}
+        {bannerMessage && <AlertBanner>{bannerMessage}</AlertBanner>}
 
-        {!hasError && !loading && (
+        {!bannerMessage && !loading && (
           <View style={styles.signUpRow}>
             <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
               Não tem conta?
             </Text>
-            <Button mode="text">Cadastre-se</Button>
+            <Button mode="text" onPress={() => router.push('/cadastro')}>
+              Cadastre-se
+            </Button>
           </View>
         )}
       </ScrollView>
+
+      <Snackbar
+        visible={contaCriada === '1'}
+        onDismiss={() => router.setParams({ contaCriada: undefined })}>
+        Conta criada! Agora é só entrar com seu e-mail e senha.
+      </Snackbar>
     </SafeAreaView>
   );
 }

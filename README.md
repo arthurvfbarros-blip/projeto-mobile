@@ -39,3 +39,21 @@ Dentro da pasta `backend/`, execute:
 ```bash
 mvn test
 ```
+
+## Executar o frontend
+
+Com o backend rodando, na raiz do projeto, execute:
+
+```bash
+cd frontend
+npm install
+npx expo start
+```
+
+Em desenvolvimento, o app procura a API na porta `8080` da mesma máquina que roda o `expo start`, então funciona no navegador, no emulador e no celular (pelo Expo Go, na mesma rede Wi-Fi) sem configuração extra. Para usar outro endereço, crie `frontend/.env.local` com:
+
+```bash
+EXPO_PUBLIC_API_URL=http://192.168.0.10:8080
+```
+
+No navegador, a API só aceita requisições vindas de `http://localhost:8081` (variável `CORS_ALLOWED_ORIGINS` do backend).
