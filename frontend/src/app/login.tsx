@@ -1,7 +1,8 @@
 import { Image } from 'expo-image';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Button, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlertBanner } from '@/components/alert-banner';
@@ -18,6 +19,7 @@ type FieldErrors = {
 // US18 - Login (Figma: "Protótipo navegável 1", estados padrão, erro, carregando e vazio)
 export default function LoginScreen() {
   const { colors } = useAppTheme();
+  const { contaCriada } = useLocalSearchParams<{ contaCriada?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -113,10 +115,18 @@ export default function LoginScreen() {
             <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
               Não tem conta?
             </Text>
-            <Button mode="text">Cadastre-se</Button>
+            <Button mode="text" onPress={() => router.push('/cadastro')}>
+              Cadastre-se
+            </Button>
           </View>
         )}
       </ScrollView>
+
+      <Snackbar
+        visible={contaCriada === '1'}
+        onDismiss={() => router.setParams({ contaCriada: undefined })}>
+        Conta criada! Agora é só entrar com seu e-mail e senha.
+      </Snackbar>
     </SafeAreaView>
   );
 }
