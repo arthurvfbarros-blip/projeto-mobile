@@ -201,6 +201,7 @@ export default function UserSignUpScreen() {
             icon={ArrowRightIcon}
             onPress={handleSubmit}
             loading={loading}
+            disabled={loading}
             contentStyle={styles.buttonContent}>
             {loading ? 'Criando conta...' : 'Criar minha conta'}
           </Button>

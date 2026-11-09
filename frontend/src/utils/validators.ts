@@ -1,7 +1,8 @@
 import { onlyCnpjChars, onlyDigits } from '@/utils/masks';
 
 export const PASSWORD_MIN_LENGTH = 8;
-export const PASSWORD_MAX_LENGTH = 72;
+export const PASSWORD_MAX_BYTES = 72;
+export const PASSWORD_MAX_LENGTH = PASSWORD_MAX_BYTES;
 
 export function requiredError(value: string, message: string): string | undefined {
   return value.trim() ? undefined : message;
@@ -13,10 +14,19 @@ export function emailError(value: string): string | undefined {
 }
 
 export function passwordError(value: string): string | undefined {
-  if (!value) return 'Informe a senha';
-  return value.length >= PASSWORD_MIN_LENGTH
-    ? undefined
-    : `A senha deve ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres`;
+  if (!value.trim()) return 'Informe a senha';
+  if (value.length < PASSWORD_MIN_LENGTH) {
+    return `A senha deve ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres`;
+  }
+
+  let bytes = 0;
+  for (const character of value) {
+    const codePoint = character.codePointAt(0)!;
+    bytes += codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4;
+  }
+  return bytes > PASSWORD_MAX_BYTES
+    ? `A senha deve ter no máximo ${PASSWORD_MAX_BYTES} bytes UTF-8`
+    : undefined;
 }
 
 export function phoneError(value: string, noun: string): string | undefined {
