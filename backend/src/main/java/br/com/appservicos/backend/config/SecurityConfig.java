@@ -51,7 +51,9 @@ public class SecurityConfig {
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers(HttpMethod.POST, "/auth/login", "/auth/cadastro/cliente").permitAll()
 						.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+						.requestMatchers(HttpMethod.GET, "/categorias").permitAll()
 						.requestMatchers("/clientes/me/enderecos", "/clientes/me/enderecos/**").hasRole("cliente")
+						.requestMatchers("/clientes/me/pedidos", "/clientes/me/pedidos/**").hasRole("cliente")
 						.anyRequest().authenticated())
 				.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt.jwtAuthenticationConverter(authentication)))
 				.build();
