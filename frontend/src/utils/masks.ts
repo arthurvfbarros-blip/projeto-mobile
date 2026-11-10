@@ -20,6 +20,10 @@ export function formatCpf(value: string): string {
   return applyMask(onlyDigits(value), '000.000.000-00');
 }
 
+export function formatCep(value: string): string {
+  return applyMask(onlyDigits(value).slice(0, 8), '00000-000');
+}
+
 export function formatCnpj(value: string): string {
   return applyMask(onlyCnpjChars(value), '00.000.000/0000-00');
 }

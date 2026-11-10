@@ -43,17 +43,25 @@ function isErrorBody(data: unknown): data is ErrorBody {
   return typeof data === 'object' && data !== null && typeof (data as ErrorBody).mensagem === 'string';
 }
 
-export async function postJson<T>(path: string, body: unknown): Promise<T> {
+async function requestJson<T>(path: string, method: 'GET' | 'POST', body?: unknown, accessToken?: string): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   let response: Response;
+  let data: unknown;
   try {
     response = await fetch(`${API_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      method,
+      headers: {
+        ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       signal: controller.signal,
+    });
+    data = await response.json().catch((error: unknown) => {
+      if (controller.signal.aborted) throw error;
+      return null;
     });
   } catch {
     throw new NetworkError();
@@ -61,9 +69,16 @@ export async function postJson<T>(path: string, body: unknown): Promise<T> {
     clearTimeout(timeout);
   }
 
-  const data: unknown = await response.json().catch(() => null);
   if (!response.ok) {
     throw new ApiError(response.status, isErrorBody(data) ? data : null);
   }
   return data as T;
+}
+
+export function postJson<T>(path: string, body: unknown, accessToken?: string): Promise<T> {
+  return requestJson<T>(path, 'POST', body, accessToken);
+}
+
+export function getJson<T>(path: string, accessToken: string): Promise<T> {
+  return requestJson<T>(path, 'GET', undefined, accessToken);
 }
