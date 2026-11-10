@@ -11,7 +11,7 @@ type TextFieldProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> & {
 
 // Campo "Filled" do M3 como está no Figma: o rótulo fica sempre acima do valor,
 // inclusive quando o campo está vazio e mostra o placeholder.
-export function TextField({ label, error, onFocus, onBlur, ...rest }: TextFieldProps) {
+export function TextField({ label, error, onFocus, onBlur, multiline, ...rest }: TextFieldProps) {
   const { colors, fonts } = useAppTheme();
   const [focused, setFocused] = useState(false);
 
@@ -34,6 +34,8 @@ export function TextField({ label, error, onFocus, onBlur, ...rest }: TextFieldP
         </Text>
         <TextInput
           {...rest}
+          accessibilityLabel={rest.accessibilityLabel ?? label}
+          multiline={multiline}
           onFocus={(event) => {
             setFocused(true);
             onFocus?.(event);
@@ -45,7 +47,12 @@ export function TextField({ label, error, onFocus, onBlur, ...rest }: TextFieldP
           placeholderTextColor={colors.onSurfaceVariant}
           selectionColor={colors.primary}
           cursorColor={colors.primary}
-          style={[styles.input, fonts.bodyLarge, { color: colors.onSurface }]}
+          style={[
+            styles.input,
+            multiline && styles.multiline,
+            fonts.bodyLarge,
+            { color: colors.onSurface },
+          ]}
         />
       </View>
       {hasError && (
@@ -78,5 +85,9 @@ const styles = StyleSheet.create({
   },
   supportingText: {
     paddingHorizontal: 16,
+  },
+  multiline: {
+    height: 112,
+    textAlignVertical: 'top',
   },
 });

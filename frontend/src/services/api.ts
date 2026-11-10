@@ -79,6 +79,6 @@ export function postJson<T>(path: string, body: unknown, accessToken?: string): 
   return requestJson<T>(path, 'POST', body, accessToken);
 }
 
-export function getJson<T>(path: string, accessToken: string): Promise<T> {
+export function getJson<T>(path: string, accessToken?: string): Promise<T> {
   return requestJson<T>(path, 'GET', undefined, accessToken);
 }

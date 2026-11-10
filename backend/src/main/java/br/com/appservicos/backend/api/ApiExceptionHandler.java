@@ -10,11 +10,29 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
 	public record ErroResponse(String mensagem, Map<String, String> campos) {
+	}
+
+	@ExceptionHandler(CampoInvalidoException.class)
+	public ResponseEntity<ErroResponse> campoInvalido(CampoInvalidoException exception) {
+		return ResponseEntity.badRequest().body(new ErroResponse("Dados inválidos",
+				Map.of(exception.getCampo(), exception.getMessage())));
+	}
+
+	@ExceptionHandler(RecursoNaoEncontradoException.class)
+	public ResponseEntity<ErroResponse> recursoNaoEncontrado(RecursoNaoEncontradoException exception) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErroResponse(exception.getMessage(), Map.of()));
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ErroResponse> parametroInvalido(MethodArgumentTypeMismatchException exception) {
+		return ResponseEntity.badRequest().body(new ErroResponse("Dados inválidos",
+				Map.of(exception.getName(), "Informe um número inteiro válido")));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)

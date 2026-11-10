@@ -37,3 +37,35 @@ CREATE TABLE IF NOT EXISTS endereco_cliente (
 );
 
 CREATE INDEX IF NOT EXISTS idx_endereco_cliente_cliente ON endereco_cliente (id_cliente, id_endereco);
+
+CREATE TABLE IF NOT EXISTS categoria_servico (
+    id_categoria INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT,
+    CONSTRAINT uq_categoria_servico_nome UNIQUE (nome)
+);
+
+CREATE TABLE IF NOT EXISTS pedido_servico (
+    id_pedido INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_cliente INTEGER NOT NULL,
+    id_categoria INTEGER NOT NULL,
+    titulo VARCHAR(150) NOT NULL,
+    descricao TEXT NOT NULL,
+    status VARCHAR(25) NOT NULL DEFAULT 'aberto',
+    id_endereco INTEGER,
+    data_desejada DATE,
+    criado_em TIMESTAMP WITH TIME ZONE,
+    endereco_cep VARCHAR(8),
+    endereco_logradouro VARCHAR(150),
+    endereco_numero VARCHAR(20),
+    endereco_complemento VARCHAR(100),
+    endereco_bairro VARCHAR(100),
+    endereco_cidade VARCHAR(100),
+    endereco_uf VARCHAR(2),
+    CONSTRAINT fk_pedido_servico_cliente FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente),
+    CONSTRAINT fk_pedido_servico_categoria FOREIGN KEY (id_categoria) REFERENCES categoria_servico (id_categoria),
+    CONSTRAINT fk_pedido_servico_endereco FOREIGN KEY (id_endereco) REFERENCES endereco_cliente (id_endereco) ON DELETE SET NULL,
+    CONSTRAINT ck_pedido_servico_status CHECK (status IN ('aberto', 'em_orcamento', 'aguardando_confirmacao', 'agendado', 'concluido', 'cancelado'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_pedido_servico_cliente ON pedido_servico (id_cliente, id_pedido);
