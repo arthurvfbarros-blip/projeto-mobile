@@ -32,12 +32,31 @@ export async function getSession(): Promise<Session | null> {
   const stored = await storage.getItemAsync(SESSION_KEY);
   if (!stored) return null;
 
-  const session: Session = JSON.parse(stored);
-  if (session.expiresAt <= Date.now()) {
+  let session: unknown;
+  try {
+    session = JSON.parse(stored);
+  } catch {
+    await clearSession();
+    return null;
+  }
+  if (!isSession(session) || session.expiresAt <= Date.now()) {
     await clearSession();
     return null;
   }
   return session;
+}
+
+export function isSession(value: unknown): value is Session {
+  if (typeof value !== 'object' || value === null) return false;
+  const session = value as Partial<Session>;
+  return (
+    typeof session.accessToken === 'string' && session.accessToken.length > 0 &&
+    typeof session.expiresAt === 'number' && Number.isFinite(session.expiresAt) &&
+    typeof session.usuario === 'object' && session.usuario !== null &&
+    Number.isInteger(session.usuario.id) && session.usuario.id > 0 &&
+    typeof session.usuario.email === 'string' &&
+    (session.usuario.tipoUsuario === 'cliente' || session.usuario.tipoUsuario === 'prestador')
+  );
 }
 
 export async function clearSession(): Promise<void> {
