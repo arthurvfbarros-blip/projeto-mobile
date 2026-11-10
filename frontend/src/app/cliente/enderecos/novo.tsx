@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
@@ -9,6 +9,7 @@ import { FormField } from '@/components/form-field';
 import { ScreenHeader } from '@/components/screen-header';
 import { useAppTheme } from '@/constants/theme';
 import { useSession } from '@/providers/session-provider';
+import { useOrderDraft } from '@/providers/order-draft-provider';
 import { createAddress } from '@/services/addresses';
 import { ApiError, NetworkError } from '@/services/api';
 import { validateAddress, type AddressErrors, type AddressForm } from '@/utils/address-validation';
@@ -17,6 +18,11 @@ import { formatCep, onlyDigits } from '@/utils/masks';
 export default function NewAddressScreen() {
   const { colors } = useAppTheme();
   const { session, expireSession } = useSession();
+  const { updateDraft } = useOrderDraft();
+  const { retorno } = useLocalSearchParams<{ retorno?: string }>();
+  const returnToOrder = retorno === 'pedido';
+  const goBack = () =>
+    router.dismissTo(returnToOrder ? '/cliente/pedidos/novo' : '/cliente/enderecos');
   const [form, setForm] = useState<AddressForm>({
     cep: '',
     logradouro: '',
@@ -55,7 +61,7 @@ export default function NewAddressScreen() {
     submitting.current = true;
     setSaving(true);
     try {
-      await createAddress(token, {
+      const created = await createAddress(token, {
         cep: onlyDigits(form.cep),
         logradouro: form.logradouro.trim(),
         numero: form.numero.trim(),
@@ -65,6 +71,11 @@ export default function NewAddressScreen() {
         uf: form.uf.trim().toUpperCase(),
       });
       if (!active.current) return;
+      if (returnToOrder) {
+        updateDraft({ idEndereco: created.idEndereco });
+        router.dismissTo('/cliente/pedidos/novo');
+        return;
+      }
       router.dismissTo({ pathname: '/cliente/enderecos', params: { enderecoCriado: '1' } });
     } catch (error) {
       if (!active.current) return;
@@ -96,10 +107,7 @@ export default function NewAddressScreen() {
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
-      <ScreenHeader
-        title="Novo endereço"
-        onBack={saving ? undefined : () => router.dismissTo('/cliente/enderecos')}
-      />
+      <ScreenHeader title="Novo endereço" onBack={saving ? undefined : goBack} />
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
@@ -209,10 +217,7 @@ export default function NewAddressScreen() {
             disabled={saving}>
             {saving ? 'Salvando endereço...' : 'Salvar endereço'}
           </Button>
-          <Button
-            mode="text"
-            onPress={() => router.dismissTo('/cliente/enderecos')}
-            disabled={saving}>
+          <Button mode="text" onPress={goBack} disabled={saving}>
             Cancelar
           </Button>
         </View>

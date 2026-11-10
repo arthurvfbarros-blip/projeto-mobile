@@ -44,6 +44,29 @@ export default function ClientHomeScreen() {
         </View>
 
         <View style={[styles.card, { borderColor: colors.outlineVariant }]}>
+          <Text variant="titleLarge" accessibilityRole="header">
+            Peça um serviço
+          </Text>
+          <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
+            Conte o que você precisa e acompanhe seus pedidos.
+          </Text>
+          <Button
+            mode="contained"
+            icon={ArrowRightIcon}
+            contentStyle={styles.button}
+            disabled={leaving}
+            onPress={() => router.push('/cliente/pedidos/novo')}>
+            Novo pedido
+          </Button>
+          <Button
+            mode="outlined"
+            disabled={leaving}
+            onPress={() => router.push('/cliente/pedidos')}>
+            Meus pedidos
+          </Button>
+        </View>
+
+        <View style={[styles.card, { borderColor: colors.outlineVariant }]}>
           <View style={[styles.iconContainer, { backgroundColor: colors.primaryContainer }]}>
             <Image source={require('@/assets/icons/field-map-pin.svg')} style={styles.icon} />
           </View>

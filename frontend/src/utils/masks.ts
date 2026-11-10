@@ -24,6 +24,10 @@ export function formatCep(value: string): string {
   return applyMask(onlyDigits(value).slice(0, 8), '00000-000');
 }
 
+export function formatDate(value: string): string {
+  return applyMask(onlyDigits(value).slice(0, 8), '00/00/0000');
+}
+
 export function formatCnpj(value: string): string {
   return applyMask(onlyCnpjChars(value), '00.000.000/0000-00');
 }
