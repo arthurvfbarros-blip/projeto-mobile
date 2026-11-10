@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Snackbar, Text } from 'react-native-paper';
@@ -8,8 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertBanner } from '@/components/alert-banner';
 import { TextField } from '@/components/text-field';
 import { useAppTheme } from '@/constants/theme';
+import { useSession } from '@/providers/session-provider';
 import { ApiError, NetworkError } from '@/services/api';
-import { signIn } from '@/services/auth';
 
 type FieldErrors = {
   email?: string;
@@ -19,6 +19,7 @@ type FieldErrors = {
 // US18 - Login (Figma: "Protótipo navegável 1", estados padrão, erro, carregando e vazio)
 export default function LoginScreen() {
   const { colors } = useAppTheme();
+  const { session, notice, authenticate, signOut, clearNotice } = useSession();
   const { contaCriada } = useLocalSearchParams<{ contaCriada?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,9 +35,15 @@ export default function LoginScreen() {
     setLoading(true);
     setFieldErrors({});
     setBannerMessage(null);
+    clearNotice();
     try {
-      await signIn(email.trim(), password);
-      // TODO: ir para a área do cliente quando a primeira tela dela existir.
+      const authenticated = await authenticate(email.trim(), password);
+      if (authenticated.usuario.tipoUsuario === 'cliente') {
+        router.replace('/cliente');
+      } else {
+        await signOut();
+        setBannerMessage('Entre com uma conta de cliente para acessar seus endereços.');
+      }
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         setFieldErrors({ password: error.message });
@@ -52,6 +59,8 @@ export default function LoginScreen() {
       setLoading(false);
     }
   }
+
+  if (session?.usuario.tipoUsuario === 'cliente') return <Redirect href="/cliente" />;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.surfaceContainerLowest }]}>
@@ -103,12 +112,12 @@ export default function LoginScreen() {
           mode="contained"
           onPress={handleSignIn}
           loading={loading}
-          disabled={isEmpty}
+          disabled={isEmpty || loading}
           labelStyle={isEmpty ? { color: colors.onSurfaceVariant } : undefined}>
           {loading ? 'Entrando...' : 'Entrar'}
         </Button>
 
-        {bannerMessage && <AlertBanner>{bannerMessage}</AlertBanner>}
+        {(bannerMessage || notice) && <AlertBanner>{bannerMessage ?? notice!}</AlertBanner>}
 
         {!bannerMessage && !loading && (
           <View style={styles.signUpRow}>

@@ -5,9 +5,11 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { PaperProvider } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, PaperProvider } from 'react-native-paper';
 
 import { theme } from '@/constants/theme';
+import { SessionProvider, useSession } from '@/providers/session-provider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,8 +25,34 @@ export default function RootLayout() {
 
   return (
     <PaperProvider theme={theme}>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }} />
+      <SessionProvider>
+        <StatusBar style="dark" />
+        <RootNavigation />
+      </SessionProvider>
     </PaperProvider>
   );
 }
+
+function RootNavigation() {
+  const { session, loading } = useSession();
+  if (loading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator accessibilityLabel="Carregando sua conta" />
+      </View>
+    );
+  }
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="login" />
+      <Stack.Protected guard={session?.usuario.tipoUsuario === 'cliente'}>
+        <Stack.Screen name="cliente" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceContainerLowest },
+});
