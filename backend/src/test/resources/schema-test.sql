@@ -18,3 +18,22 @@ CREATE TABLE IF NOT EXISTS cliente (
     CONSTRAINT fk_cliente_usuario FOREIGN KEY (id_usuario)
         REFERENCES usuario (id_usuario) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS endereco_cliente (
+    id_endereco INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_cliente INTEGER NOT NULL,
+    cep VARCHAR(8) NOT NULL CHECK (REGEXP_LIKE(cep, '^[0-9]{8}$')),
+    logradouro VARCHAR(150) NOT NULL CHECK (TRIM(logradouro) <> ''),
+    numero VARCHAR(20) NOT NULL CHECK (TRIM(numero) <> ''),
+    complemento VARCHAR(100),
+    bairro VARCHAR(100) NOT NULL CHECK (TRIM(bairro) <> ''),
+    cidade VARCHAR(100) NOT NULL CHECK (TRIM(cidade) <> ''),
+    uf VARCHAR(2) NOT NULL CHECK (uf IN (
+        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
+        'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+    )),
+    CONSTRAINT fk_endereco_cliente_cliente FOREIGN KEY (id_cliente)
+        REFERENCES cliente (id_cliente) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_endereco_cliente_cliente ON endereco_cliente (id_cliente, id_endereco);
