@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlertBanner } from '@/components/alert-banner';
 import { TextField } from '@/components/text-field';
+import { SubmitButton } from '@/components/submit-button';
 import { useAppTheme } from '@/constants/theme';
 import { useSession } from '@/providers/session-provider';
 import { ApiError, NetworkError } from '@/services/api';
@@ -16,7 +17,6 @@ type FieldErrors = {
   password?: string;
 };
 
-// US18 - Login (Figma: "Protótipo navegável 1", estados padrão, erro, carregando e vazio)
 export default function LoginScreen() {
   const { colors } = useAppTheme();
   const { session, notice, authenticate, clearNotice } = useSession();
@@ -57,7 +57,10 @@ export default function LoginScreen() {
     }
   }
 
-  if (session) return <Redirect href={session.usuario.tipoUsuario === 'cliente' ? '/cliente' : '/prestador'} />;
+  if (session)
+    return (
+      <Redirect href={session.usuario.tipoUsuario === 'cliente' ? '/cliente' : '/prestador'} />
+    );
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.surfaceContainerLowest }]}>
@@ -105,14 +108,13 @@ export default function LoginScreen() {
           <Button mode="text">Esqueci minha senha</Button>
         </View>
 
-        <Button
-          mode="contained"
+        <SubmitButton
           onPress={handleSignIn}
           loading={loading}
           disabled={isEmpty || loading}
           labelStyle={isEmpty ? { color: colors.onSurfaceVariant } : undefined}>
           {loading ? 'Entrando...' : 'Entrar'}
-        </Button>
+        </SubmitButton>
 
         {(bannerMessage || notice) && <AlertBanner>{bannerMessage ?? notice!}</AlertBanner>}
 
@@ -130,7 +132,9 @@ export default function LoginScreen() {
 
       <Snackbar
         visible={contaCriada === '1' || prestadorCadastrado === '1'}
-        onDismiss={() => router.setParams({ contaCriada: undefined, prestadorCadastrado: undefined })}>
+        onDismiss={() =>
+          router.setParams({ contaCriada: undefined, prestadorCadastrado: undefined })
+        }>
         {prestadorCadastrado === '1'
           ? 'Cadastro enviado para análise. Entre para acompanhar.'
           : 'Conta criada! Agora é só entrar com seu e-mail e senha.'}

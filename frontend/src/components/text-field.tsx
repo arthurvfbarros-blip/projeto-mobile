@@ -80,14 +80,14 @@ const styles = StyleSheet.create({
     padding: 0,
     ...Platform.select({
       android: { includeFontPadding: false, textAlignVertical: 'center' },
-      web: { outlineWidth: 0 },
+      web: { outlineWidth: 0, outlineStyle: 'solid' as const },
     }),
   },
   supportingText: {
     paddingHorizontal: 16,
   },
   multiline: {
-    height: 112,
+    height: 76,
     textAlignVertical: 'top',
   },
 });

@@ -52,7 +52,7 @@ function hasOrderFields(value: unknown): value is Omit<PedidoResumo, 'bairro' | 
   );
 }
 
-function isResumo(value: unknown): value is PedidoResumo {
+export function isOrderSummary(value: unknown): value is PedidoResumo {
   if (!hasOrderFields(value)) return false;
   const pedido = value as PedidoResumo;
   return (
@@ -78,24 +78,26 @@ function isPedido(value: unknown): value is Pedido {
   );
 }
 
-export async function listOrders(accessToken: string, pagina = 0): Promise<PaginaPedidos> {
-  const response = await getJson<PaginaPedidos | null>(
-    `${PATH}?pagina=${pagina}&tamanho=10`,
-    accessToken,
+export function isOrdersPage(value: unknown): value is PaginaPedidos {
+  if (typeof value !== 'object' || value === null) return false;
+  const response = value as PaginaPedidos;
+  return (
+    Array.isArray(response.itens) &&
+    response.itens.every(isOrderSummary) &&
+    Number.isInteger(response.pagina) &&
+    response.pagina >= 0 &&
+    Number.isInteger(response.tamanho) &&
+    response.tamanho >= 1 &&
+    Number.isInteger(response.totalItens) &&
+    response.totalItens >= 0 &&
+    Number.isInteger(response.totalPaginas) &&
+    response.totalPaginas >= 0
   );
-  if (
-    !response ||
-    !Array.isArray(response.itens) ||
-    !response.itens.every(isResumo) ||
-    !Number.isInteger(response.pagina) ||
-    response.pagina < 0 ||
-    !Number.isInteger(response.tamanho) ||
-    response.tamanho < 1 ||
-    !Number.isInteger(response.totalItens) ||
-    response.totalItens < 0 ||
-    !Number.isInteger(response.totalPaginas) ||
-    response.totalPaginas < 0
-  ) {
+}
+
+export async function listOrders(accessToken: string, pagina = 0): Promise<PaginaPedidos> {
+  const response = await getJson<unknown>(`${PATH}?pagina=${pagina}&tamanho=10`, accessToken);
+  if (!isOrdersPage(response)) {
     throw new Error('Não foi possível carregar seus pedidos. Tente novamente.');
   }
   return response;

@@ -5,10 +5,13 @@ import { ActivityIndicator, Button, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlertBanner } from '@/components/alert-banner';
+import { ArrowRightIcon } from '@/components/arrow-right-icon';
+import { InfoBanner } from '@/components/info-banner';
 import { Checkbox } from '@/components/checkbox';
 import { ScreenHeader } from '@/components/screen-header';
 import { SignUpProgress } from '@/components/signup-progress';
-import { TextField } from '@/components/text-field';
+import { FormField } from '@/components/form-field';
+import { SubmitButton } from '@/components/submit-button';
 import { useAppTheme } from '@/constants/theme';
 import { ApiError, NetworkError } from '@/services/api';
 import { listCategories, type Categoria } from '@/services/categories';
@@ -204,7 +207,7 @@ export default function ProviderSignUpScreen() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
       <ScreenHeader
-        title="Cadastro de prestador"
+        title="Cadastrar prestador"
         onBack={saving ? undefined : () => router.dismissTo('/cadastro')}
       />
       <ScrollView
@@ -212,39 +215,33 @@ export default function ProviderSignUpScreen() {
         keyboardShouldPersistTaps="handled"
         automaticallyAdjustKeyboardInsets>
         <SignUpProgress label="Cadastro profissional" step={2} totalSteps={2} />
-        <View style={styles.section}>
+        <View style={styles.presentation}>
           <Text variant="headlineSmall" accessibilityRole="header">
-            Seus dados
+            Conte sobre seu trabalho
           </Text>
-          <TextField
+          <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
+            Esses dados ajudam os clientes a conhecer seu trabalho.
+          </Text>
+        </View>
+        <View style={styles.section}>
+          <SectionHeading number={1}>Dados profissionais</SectionHeading>
+          <FormField
+            appearance="outlined"
+            icon={require('@/assets/icons/field-user.svg')}
+            placeholder="Nome completo do profissional"
             label="Nome completo"
             value={form.nome}
             onChangeText={(value) => update('nome', value)}
             error={errors.nome}
             maxLength={150}
             autoComplete="name"
+            autoCapitalize="words"
             editable={!saving}
           />
-          <TextField
-            label="CPF"
-            value={form.cpf}
-            onChangeText={(value) => update('cpf', formatCpf(value))}
-            error={errors.cpf}
-            maxLength={14}
-            keyboardType="number-pad"
-            editable={!saving}
-          />
-          <TextField
-            label="Telefone"
-            value={form.telefone}
-            onChangeText={(value) => update('telefone', formatPhone(value))}
-            error={errors.telefone}
-            maxLength={15}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            editable={!saving}
-          />
-          <TextField
+          <FormField
+            appearance="outlined"
+            icon={require('@/assets/icons/field-mail.svg')}
+            placeholder="voce@exemplo.com"
             label="E-mail"
             value={form.email}
             onChangeText={(value) => update('email', value)}
@@ -255,7 +252,35 @@ export default function ProviderSignUpScreen() {
             autoCapitalize="none"
             editable={!saving}
           />
-          <TextField
+          <FormField
+            appearance="outlined"
+            icon={require('@/assets/icons/field-phone.svg')}
+            placeholder="(11) 99999-9999"
+            label="Telefone"
+            value={form.telefone}
+            onChangeText={(value) => update('telefone', formatPhone(value))}
+            error={errors.telefone}
+            maxLength={15}
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            editable={!saving}
+          />
+          <FormField
+            appearance="outlined"
+            icon={require('@/assets/icons/field-badge-check.svg')}
+            placeholder="000.000.000-00"
+            label="CPF"
+            value={form.cpf}
+            onChangeText={(value) => update('cpf', formatCpf(value))}
+            error={errors.cpf}
+            maxLength={14}
+            keyboardType="number-pad"
+            editable={!saving}
+          />
+          <FormField
+            appearance="outlined"
+            icon={require('@/assets/icons/field-lock.svg')}
+            placeholder="Mínimo de 8 caracteres"
             label="Senha"
             value={form.senha}
             onChangeText={(value) => update('senha', value)}
@@ -265,11 +290,58 @@ export default function ProviderSignUpScreen() {
             secureTextEntry
             editable={!saving}
           />
+          <Checkbox
+            label="Adicionar dados de empresa"
+            checked={hasCompany}
+            onChange={toggleCompany}
+            disabled={saving}
+          />
+          {hasCompany && (
+            <View style={styles.company}>
+              <Text variant="titleMedium" accessibilityRole="header">
+                Dados da empresa
+              </Text>
+              <FormField
+                appearance="outlined"
+                icon={require('@/assets/icons/field-building.svg')}
+                placeholder="Nome registrado da empresa"
+                label="Razão social"
+                value={form['empresa.razaoSocial']}
+                onChangeText={(value) => update('empresa.razaoSocial', value)}
+                error={errors['empresa.razaoSocial']}
+                maxLength={200}
+                editable={!saving}
+              />
+              <FormField
+                appearance="outlined"
+                icon={require('@/assets/icons/field-store.svg')}
+                placeholder="Como os clientes conhecem sua empresa"
+                label="Nome fantasia (opcional)"
+                value={form['empresa.nomeFantasia']}
+                onChangeText={(value) => update('empresa.nomeFantasia', value)}
+                error={errors['empresa.nomeFantasia']}
+                maxLength={200}
+                editable={!saving}
+              />
+              <FormField
+                appearance="outlined"
+                icon={require('@/assets/icons/field-file-text.svg')}
+                placeholder="00.000.000/0000-00"
+                label="CNPJ"
+                value={form['empresa.cnpj']}
+                onChangeText={(value) => update('empresa.cnpj', formatCnpj(value))}
+                error={errors['empresa.cnpj']}
+                maxLength={18}
+                autoCapitalize="characters"
+                editable={!saving}
+              />
+            </View>
+          )}
         </View>
+        <View style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
         <View style={styles.section}>
-          <Text variant="titleLarge" accessibilityRole="header">
-            Serviços oferecidos
-          </Text>
+          <SectionHeading number={2}>Serviços e atendimento</SectionHeading>
+          <Text variant="labelLarge">Serviços oferecidos</Text>
           {catalog.state === 'loading' ? (
             <ActivityIndicator accessibilityLabel="Carregando categorias" />
           ) : catalog.state === 'error' || !catalog.categories.length ? (
@@ -284,27 +356,27 @@ export default function ProviderSignUpScreen() {
               </Button>
             </>
           ) : (
-            catalog.categories.map(({ idCategoria, nome }) => (
-              <Checkbox
-                key={idCategoria}
-                label={nome}
-                checked={categoryIds.includes(idCategoria)}
-                onChange={(checked) => toggleCategory(idCategoria, checked)}
-                disabled={saving}
-              />
-            ))
+            <View style={styles.categories}>
+              {catalog.categories.map(({ idCategoria, nome }) => (
+                <Checkbox
+                  key={idCategoria}
+                  label={nome}
+                  checked={categoryIds.includes(idCategoria)}
+                  onChange={(checked) => toggleCategory(idCategoria, checked)}
+                  disabled={saving}
+                />
+              ))}
+            </View>
           )}
           {errors.idCategorias && (
             <Text style={{ color: colors.error }}>{errors.idCategorias}</Text>
           )}
-        </View>
-        <View style={styles.section}>
-          <Text variant="titleLarge" accessibilityRole="header">
-            Área de atendimento
-          </Text>
           <View style={styles.cityRow}>
             <View style={styles.city}>
-              <TextField
+              <FormField
+                appearance="outlined"
+                icon={require('@/assets/icons/field-map-pin.svg')}
+                placeholder="Nome da cidade"
                 label="Cidade"
                 value={form.cidade}
                 onChangeText={(value) => update('cidade', value)}
@@ -315,7 +387,9 @@ export default function ProviderSignUpScreen() {
               />
             </View>
             <View style={styles.uf}>
-              <TextField
+              <FormField
+                appearance="outlined"
+                placeholder="UF"
                 label="UF"
                 value={form.uf}
                 onChangeText={(value) => update('uf', value.toUpperCase())}
@@ -326,7 +400,9 @@ export default function ProviderSignUpScreen() {
               />
             </View>
           </View>
-          <TextField
+          <FormField
+            appearance="outlined"
+            icon={require('@/assets/icons/field-map-pin.svg')}
             label="Bairros atendidos (opcional)"
             placeholder="Ex.: Centro, Bela Vista"
             value={form.bairros}
@@ -339,43 +415,9 @@ export default function ProviderSignUpScreen() {
             Separe os bairros por vírgula ou deixe em branco se atende toda a cidade.
           </Text>
         </View>
-        <View style={styles.section}>
-          <Checkbox
-            label="Adicionar dados de empresa"
-            checked={hasCompany}
-            onChange={toggleCompany}
-            disabled={saving}
-          />
-          {hasCompany && (
-            <>
-              <TextField
-                label="Razão social"
-                value={form['empresa.razaoSocial']}
-                onChangeText={(value) => update('empresa.razaoSocial', value)}
-                error={errors['empresa.razaoSocial']}
-                maxLength={200}
-                editable={!saving}
-              />
-              <TextField
-                label="Nome fantasia (opcional)"
-                value={form['empresa.nomeFantasia']}
-                onChangeText={(value) => update('empresa.nomeFantasia', value)}
-                error={errors['empresa.nomeFantasia']}
-                maxLength={200}
-                editable={!saving}
-              />
-              <TextField
-                label="CNPJ"
-                value={form['empresa.cnpj']}
-                onChangeText={(value) => update('empresa.cnpj', formatCnpj(value))}
-                error={errors['empresa.cnpj']}
-                maxLength={18}
-                autoCapitalize="characters"
-                editable={!saving}
-              />
-            </>
-          )}
-        </View>
+        <InfoBanner title="Análise do cadastro">
+          Após o envio, a equipe analisará seu perfil para liberar o acesso às oportunidades.
+        </InfoBanner>
         <Checkbox
           label="Li e aceito os Termos de Uso e a Política de Privacidade"
           checked={acceptedTerms}
@@ -387,16 +429,32 @@ export default function ProviderSignUpScreen() {
           disabled={saving}
         />
         {message && <AlertBanner>{message}</AlertBanner>}
-        <Button
-          mode="contained"
+        <SubmitButton
+          icon={ArrowRightIcon}
           contentStyle={styles.button}
           onPress={submit}
           loading={saving}
           disabled={saving || catalog.state !== 'loaded' || catalog.categories.length === 0}>
           {saving ? 'Enviando cadastro...' : 'Enviar cadastro'}
-        </Button>
+        </SubmitButton>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function SectionHeading({ number, children }: { number: number; children: string }) {
+  const { colors } = useAppTheme();
+  return (
+    <View style={styles.sectionHeading}>
+      <View style={[styles.number, { backgroundColor: colors.primary }]}>
+        <Text variant="labelSmall" style={{ color: colors.onPrimary }}>
+          {number}
+        </Text>
+      </View>
+      <Text variant="titleMedium" accessibilityRole="header">
+        {children}
+      </Text>
+    </View>
   );
 }
 
@@ -408,11 +466,24 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: 24,
     padding: 20,
+    paddingTop: 16,
     paddingBottom: 32,
   },
-  section: { gap: 14 },
+  presentation: { gap: 8 },
+  section: { gap: 16 },
+  sectionHeading: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  number: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  company: { gap: 16, paddingTop: 8 },
+  categories: { gap: 16 },
+  divider: { height: 1 },
   cityRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   city: { flex: 1 },
-  uf: { width: 88 },
-  button: { height: 52 },
+  uf: { width: 76 },
+  button: { height: 52, flexDirection: 'row-reverse' },
 });

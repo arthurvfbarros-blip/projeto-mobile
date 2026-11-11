@@ -43,6 +43,19 @@ export function formatCreatedAt(value: string | null): string {
   return date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 }
 
+export function formatPublishedTime(value: string): string {
+  const published = new Date(value).getTime();
+  if (Number.isNaN(published)) return 'Data não informada';
+  const minutes = Math.floor(Math.max(0, Date.now() - published) / 60_000);
+  if (minutes < 1) return 'agora';
+  if (minutes < 60) return 'há ' + minutes + ' min';
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return 'há ' + hours + ' h';
+  const days = Math.floor(hours / 24);
+  if (days < 7) return 'há ' + days + (days === 1 ? ' dia' : ' dias');
+  return formatCreatedAt(value);
+}
+
 export function orderStatusLabel(status: string): string {
   const labels: Record<string, string> = {
     aberto: 'Aberto',

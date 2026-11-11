@@ -12,9 +12,17 @@ type Props = {
   categoria: string;
   dataDesejada: string | null;
   endereco: NovoEndereco | null;
+  showTitle?: boolean;
 };
 
-export function OrderSummary({ titulo, descricao, categoria, dataDesejada, endereco }: Props) {
+export function OrderSummary({
+  titulo,
+  descricao,
+  categoria,
+  dataDesejada,
+  endereco,
+  showTitle = true,
+}: Props) {
   const { colors } = useAppTheme();
   return (
     <View style={styles.container}>
@@ -24,12 +32,14 @@ export function OrderSummary({ titulo, descricao, categoria, dataDesejada, ender
         </Text>
         <Text variant="bodyLarge">{categoria}</Text>
       </View>
-      <View style={styles.section}>
-        <Text variant="labelLarge" style={{ color: colors.onSurfaceVariant }}>
-          Título do pedido
-        </Text>
-        <Text variant="bodyLarge">{titulo}</Text>
-      </View>
+      {showTitle && (
+        <View style={styles.section}>
+          <Text variant="labelLarge" style={{ color: colors.onSurfaceVariant }}>
+            Título do pedido
+          </Text>
+          <Text variant="bodyLarge">{titulo}</Text>
+        </View>
+      )}
       <View style={styles.section}>
         <Text variant="labelLarge" style={{ color: colors.onSurfaceVariant }}>
           Descrição

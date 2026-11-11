@@ -31,8 +31,10 @@ export default function ClientHomeScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
-      <ScreenHeader title="Área do cliente" />
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
+      <ScreenHeader variant="app" title="Área do cliente" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.presentation}>
           <Text variant="headlineSmall" accessibilityRole="header">

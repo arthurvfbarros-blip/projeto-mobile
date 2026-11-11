@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, Text } from 'react-native-paper';
@@ -70,8 +70,10 @@ export default function ProviderHomeScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
-      <ScreenHeader title="Área do prestador" />
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
+      <ScreenHeader variant="app" title="Área do prestador" />
       <ScrollView contentContainerStyle={styles.content}>
         {loadError ? (
           <>
@@ -121,6 +123,14 @@ export default function ProviderHomeScreen() {
                 </Text>
               )}
             </View>
+            {profile.statusAprovacao === 'aprovado' && (
+              <Button
+                mode="contained"
+                disabled={signingOut}
+                onPress={() => router.push('/prestador/oportunidades')}>
+                Ver oportunidades
+              </Button>
+            )}
             <Button mode="outlined" onPress={loadProfile} disabled={signingOut}>
               Atualizar situação
             </Button>
