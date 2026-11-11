@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.appservicos.backend.api.CadastroDuplicadoException;
 import br.com.appservicos.backend.cliente.dto.CadastroClienteRequest;
 import br.com.appservicos.backend.cliente.dto.CadastroClienteResponse;
 import br.com.appservicos.backend.usuario.Usuario;

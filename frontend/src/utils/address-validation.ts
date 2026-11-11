@@ -50,6 +50,13 @@ function textError(value: string, label: string, max: number): string | undefine
   );
 }
 
+export function ufError(value: string): string | undefined {
+  return (
+    requiredError(value, 'Informe a UF') ??
+    (UFS.includes(value.trim().toUpperCase()) ? undefined : 'Informe uma UF válida')
+  );
+}
+
 export function validateAddress(form: AddressForm): AddressErrors {
   return {
     cep:
@@ -60,8 +67,6 @@ export function validateAddress(form: AddressForm): AddressErrors {
     complemento: form.complemento.trim().length > 100 ? 'Use no máximo 100 caracteres' : undefined,
     bairro: textError(form.bairro, 'o bairro', 100),
     cidade: textError(form.cidade, 'a cidade', 100),
-    uf:
-      requiredError(form.uf, 'Informe a UF') ??
-      (UFS.includes(form.uf.trim().toUpperCase()) ? undefined : 'Informe uma UF válida'),
+    uf: ufError(form.uf),
   };
 }

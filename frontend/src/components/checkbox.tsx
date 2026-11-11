@@ -22,6 +22,7 @@ export function Checkbox({ label, checked, onChange, error, disabled }: Checkbox
         disabled={disabled}
         accessibilityRole="checkbox"
         accessibilityState={{ checked, disabled }}
+        aria-checked={checked}
         accessibilityLabel={label}
         style={styles.row}>
         <View

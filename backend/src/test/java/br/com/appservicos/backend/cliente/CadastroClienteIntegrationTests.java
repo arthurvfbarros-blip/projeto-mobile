@@ -270,7 +270,7 @@ class CadastroClienteIntegrationTests {
 	@Test
 	void naoAbreOutrasRotasAoLiberarCadastro() throws Exception {
 		mvc.perform(get("/auth/cadastro/cliente")).andExpect(status().isUnauthorized());
-		mvc.perform(post("/auth/cadastro/prestador").contentType(MediaType.APPLICATION_JSON).content("{}"))
+		mvc.perform(post("/auth/cadastro/admin").contentType(MediaType.APPLICATION_JSON).content("{}"))
 				.andExpect(status().isUnauthorized());
 	}
 

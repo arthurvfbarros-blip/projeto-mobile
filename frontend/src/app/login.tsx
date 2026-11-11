@@ -19,8 +19,11 @@ type FieldErrors = {
 // US18 - Login (Figma: "Protótipo navegável 1", estados padrão, erro, carregando e vazio)
 export default function LoginScreen() {
   const { colors } = useAppTheme();
-  const { session, notice, authenticate, signOut, clearNotice } = useSession();
-  const { contaCriada } = useLocalSearchParams<{ contaCriada?: string }>();
+  const { session, notice, authenticate, clearNotice } = useSession();
+  const { contaCriada, prestadorCadastrado } = useLocalSearchParams<{
+    contaCriada?: string;
+    prestadorCadastrado?: string;
+  }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,13 +40,7 @@ export default function LoginScreen() {
     setBannerMessage(null);
     clearNotice();
     try {
-      const authenticated = await authenticate(email.trim(), password);
-      if (authenticated.usuario.tipoUsuario === 'cliente') {
-        router.replace('/cliente');
-      } else {
-        await signOut();
-        setBannerMessage('Entre com uma conta de cliente para acessar seus endereços.');
-      }
+      await authenticate(email.trim(), password);
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         setFieldErrors({ password: error.message });
@@ -60,7 +57,7 @@ export default function LoginScreen() {
     }
   }
 
-  if (session?.usuario.tipoUsuario === 'cliente') return <Redirect href="/cliente" />;
+  if (session) return <Redirect href={session.usuario.tipoUsuario === 'cliente' ? '/cliente' : '/prestador'} />;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.surfaceContainerLowest }]}>
@@ -74,7 +71,7 @@ export default function LoginScreen() {
 
         <Text variant="headlineSmall">Entrar</Text>
         <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
-          Acesse sua conta para pedir serviços
+          Acesse sua conta para pedir ou oferecer serviços
         </Text>
 
         <TextField
@@ -132,9 +129,11 @@ export default function LoginScreen() {
       </ScrollView>
 
       <Snackbar
-        visible={contaCriada === '1'}
-        onDismiss={() => router.setParams({ contaCriada: undefined })}>
-        Conta criada! Agora é só entrar com seu e-mail e senha.
+        visible={contaCriada === '1' || prestadorCadastrado === '1'}
+        onDismiss={() => router.setParams({ contaCriada: undefined, prestadorCadastrado: undefined })}>
+        {prestadorCadastrado === '1'
+          ? 'Cadastro enviado para análise. Entre para acompanhar.'
+          : 'Conta criada! Agora é só entrar com seu e-mail e senha.'}
       </Snackbar>
     </SafeAreaView>
   );

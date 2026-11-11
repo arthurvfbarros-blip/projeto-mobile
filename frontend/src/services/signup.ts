@@ -1,4 +1,4 @@
-import { ApiError, NetworkError, postJson } from '@/services/api';
+import { postJson } from '@/services/api';
 
 export type UserSignUp = {
   nome: string;
@@ -16,32 +16,6 @@ export type UserSignUpResponse = {
   tipoUsuario: 'cliente';
 };
 
-export type CompanySignUp = {
-  razaoSocial: string;
-  nomeFantasia: string;
-  cnpj: string;
-  email: string;
-  telefone: string;
-  endereco: string;
-  nomeResponsavel: string;
-  cpfResponsavel: string;
-  senha: string;
-};
-
-async function simulateCompanySignUp(email: string): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  if (email === 'offline@example.com') {
-    throw new NetworkError();
-  }
-  if (email === 'existente@example.com') {
-    throw new ApiError(409, {
-      mensagem: 'E-mail já cadastrado',
-      campos: { email: 'Este e-mail já está cadastrado' },
-    });
-  }
-}
-
 export async function signUpUser(data: UserSignUp): Promise<UserSignUpResponse> {
   const response = await postJson<UserSignUpResponse>('/auth/cadastro/cliente', data);
 
@@ -57,8 +31,4 @@ export async function signUpUser(data: UserSignUp): Promise<UserSignUpResponse> 
   }
 
   return response;
-}
-
-export async function signUpCompany(data: CompanySignUp): Promise<void> {
-  await simulateCompanySignUp(data.email);
 }

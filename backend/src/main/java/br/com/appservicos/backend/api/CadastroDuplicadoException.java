@@ -1,4 +1,4 @@
-package br.com.appservicos.backend.cliente;
+package br.com.appservicos.backend.api;
 
 public class CadastroDuplicadoException extends RuntimeException {
 
