@@ -8,8 +8,10 @@ import { AlertBanner } from '@/components/alert-banner';
 import { ArrowRightIcon } from '@/components/arrow-right-icon';
 import { Checkbox } from '@/components/checkbox';
 import { FormField } from '@/components/form-field';
+import { InfoBanner } from '@/components/info-banner';
 import { ScreenHeader } from '@/components/screen-header';
 import { SignUpProgress } from '@/components/signup-progress';
+import { SubmitButton } from '@/components/submit-button';
 import { useAppTheme } from '@/constants/theme';
 import { ApiError, NetworkError } from '@/services/api';
 import { signUpUser } from '@/services/signup';
@@ -180,12 +182,9 @@ export default function UserSignUpScreen() {
           />
         </View>
 
-        <View style={[styles.notice, { backgroundColor: colors.primaryContainer }]}>
-          <Text style={styles.noticeIcon}>🔒</Text>
-          <Text variant="bodyMedium" style={[styles.noticeText, { color: colors.onPrimaryContainer }]}>
-            Seus dados são protegidos e não serão compartilhados sem autorização.
-          </Text>
-        </View>
+        <InfoBanner icon="lock">
+          Seus dados são protegidos e não serão compartilhados sem autorização.
+        </InfoBanner>
 
         <Checkbox
           label="Li e aceito os Termos de uso e a Política de privacidade."
@@ -196,15 +195,14 @@ export default function UserSignUpScreen() {
         />
 
         <View style={styles.actions}>
-          <Button
-            mode="contained"
+          <SubmitButton
             icon={ArrowRightIcon}
             onPress={handleSubmit}
             loading={loading}
             disabled={loading}
             contentStyle={styles.buttonContent}>
             {loading ? 'Criando conta...' : 'Criar minha conta'}
-          </Button>
+          </SubmitButton>
 
           {bannerMessage ? (
             <AlertBanner>{bannerMessage}</AlertBanner>
@@ -239,19 +237,6 @@ const styles = StyleSheet.create({
   },
   fields: {
     gap: 16,
-  },
-  notice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 16,
-    borderRadius: 12,
-  },
-  noticeIcon: {
-    fontSize: 18,
-  },
-  noticeText: {
-    flex: 1,
   },
   actions: {
     gap: 12,

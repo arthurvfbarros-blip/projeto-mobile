@@ -5,7 +5,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, PaperProvider } from 'react-native-paper';
 
 import { theme } from '@/constants/theme';
@@ -24,12 +24,16 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <PaperProvider theme={theme}>
-      <SessionProvider>
-        <StatusBar style="dark" />
-        <RootNavigation />
-      </SessionProvider>
-    </PaperProvider>
+    <View style={styles.viewport}>
+      <View style={styles.appFrame}>
+        <PaperProvider theme={theme}>
+          <SessionProvider>
+            <StatusBar style="dark" />
+            <RootNavigation />
+          </SessionProvider>
+        </PaperProvider>
+      </View>
+    </View>
   );
 }
 
@@ -57,5 +61,18 @@ function RootNavigation() {
 }
 
 const styles = StyleSheet.create({
-  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.surfaceContainerLowest },
+  viewport: { flex: 1, backgroundColor: theme.colors.surfaceVariant },
+  appFrame: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    overflow: 'hidden',
+    ...Platform.select({ web: { maxWidth: 430, alignSelf: 'center' as const } }),
+  },
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.surfaceContainerLowest,
+  },
 });

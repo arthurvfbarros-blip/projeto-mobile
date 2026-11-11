@@ -2,14 +2,12 @@ package br.com.appservicos.backend.prestador;
 
 import java.util.HashSet;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.appservicos.backend.api.CadastroDuplicadoException;
 import br.com.appservicos.backend.api.CampoInvalidoException;
-import br.com.appservicos.backend.api.RecursoNaoEncontradoException;
 import br.com.appservicos.backend.categoria.CategoriaServicoRepository;
 import br.com.appservicos.backend.prestador.dto.CadastroPrestadorRequest;
 import br.com.appservicos.backend.prestador.dto.CadastroPrestadorResponse;
@@ -25,14 +23,16 @@ public class PrestadorService {
 	private final EmpresaRepository empresas;
 	private final CategoriaServicoRepository categorias;
 	private final PasswordEncoder passwordEncoder;
+	private final PrestadorAutenticadoService autenticados;
 
 	public PrestadorService(UsuarioRepository usuarios, PrestadorRepository prestadores, EmpresaRepository empresas,
-			CategoriaServicoRepository categorias, PasswordEncoder passwordEncoder) {
+			CategoriaServicoRepository categorias, PasswordEncoder passwordEncoder, PrestadorAutenticadoService autenticados) {
 		this.usuarios = usuarios;
 		this.prestadores = prestadores;
 		this.empresas = empresas;
 		this.categorias = categorias;
 		this.passwordEncoder = passwordEncoder;
+		this.autenticados = autenticados;
 	}
 
 	@Transactional
@@ -66,18 +66,6 @@ public class PrestadorService {
 
 	@Transactional(readOnly = true)
 	public PrestadorResponse consultarPerfil(String idUsuario) {
-		Integer id;
-		try {
-			id = Integer.valueOf(idUsuario);
-		} catch (NumberFormatException exception) {
-			throw new AccessDeniedException("Prestador não autorizado");
-		}
-		var prestador = prestadores.findByUsuarioId(id)
-				.orElseThrow(() -> new RecursoNaoEncontradoException("Perfil de prestador não encontrado"));
-		var usuario = prestador.getUsuario();
-		if (!usuario.isAtivo() || !"prestador".equals(usuario.getTipoUsuario())) {
-			throw new AccessDeniedException("Prestador não autorizado");
-		}
-		return PrestadorResponse.from(prestador);
+		return PrestadorResponse.from(autenticados.buscar(idUsuario));
 	}
 }

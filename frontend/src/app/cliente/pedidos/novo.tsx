@@ -6,9 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AlertBanner } from '@/components/alert-banner';
 import { OrderSummary } from '@/components/order-summary';
+import { InfoBanner } from '@/components/info-banner';
 import { ScreenHeader } from '@/components/screen-header';
 import { SignUpProgress } from '@/components/signup-progress';
 import { TextField } from '@/components/text-field';
+import { SubmitButton } from '@/components/submit-button';
 import { useAppTheme } from '@/constants/theme';
 import { useOrderDraft } from '@/providers/order-draft-provider';
 import { useSession } from '@/providers/session-provider';
@@ -105,7 +107,10 @@ export default function NewOrderScreen() {
     for (const field of fields) if (validation[field]) visible[field] = validation[field];
     setErrors(visible);
     setMessage(null);
-    if (Object.values(visible).some(Boolean)) return;
+    if (Object.values(visible).some(Boolean)) {
+      setMessage('Confira os campos destacados para continuar.');
+      return;
+    }
     setStep(step + 1);
   }
 
@@ -174,12 +179,13 @@ export default function NewOrderScreen() {
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
-      <ScreenHeader title="Novo pedido" onBack={saving ? undefined : back} />
+      <ScreenHeader variant="app" title="Novo pedido" onBack={saving ? undefined : back} />
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         automaticallyAdjustKeyboardInsets>
         <SignUpProgress
+          variant="segmented"
           label={
             step === 1 ? 'Dados do serviço' : step === 2 ? 'Endereço e data' : 'Revisão do pedido'
           }
@@ -206,9 +212,6 @@ export default function NewOrderScreen() {
           <>
             {step === 1 ? (
               <View style={styles.fields}>
-                <Text variant="headlineSmall" accessibilityRole="header">
-                  O que você precisa?
-                </Text>
                 {categories.length === 0 ? (
                   <>
                     <AlertBanner>Não há categorias disponíveis no momento.</AlertBanner>
@@ -222,20 +225,31 @@ export default function NewOrderScreen() {
                   </>
                 ) : (
                   <View style={styles.field}>
-                    <Text
-                      variant="bodySmall"
-                      style={{
-                        color: errors.idCategoria ? colors.error : colors.onSurfaceVariant,
-                      }}>
-                      Categoria do serviço
-                    </Text>
-                    <Button
-                      mode="outlined"
+                    <Pressable
+                      accessibilityRole="button"
                       accessibilityLabel="Selecionar categoria"
                       disabled={saving}
+                      style={[
+                        styles.categoryField,
+                        {
+                          backgroundColor: errors.idCategoria
+                            ? colors.errorContainer
+                            : colors.surfaceVariant,
+                          borderBottomColor: errors.idCategoria
+                            ? colors.error
+                            : colors.onSurfaceVariant,
+                        },
+                      ]}
                       onPress={() => setChoosingCategory(true)}>
-                      {category?.nome ?? 'Selecione uma categoria'}
-                    </Button>
+                      <Text
+                        variant="bodySmall"
+                        style={{
+                          color: errors.idCategoria ? colors.error : colors.onSurfaceVariant,
+                        }}>
+                        Categoria do serviço
+                      </Text>
+                      <Text variant="bodyLarge">{category?.nome ?? 'Selecione uma categoria'}</Text>
+                    </Pressable>
                     {errors.idCategoria && (
                       <Text style={{ color: colors.error }}>{errors.idCategoria}</Text>
                     )}
@@ -359,6 +373,11 @@ export default function NewOrderScreen() {
                 </Text>
               </>
             )}
+            {step === 1 && !draft.descricao.trim() && !message && (
+              <InfoBanner icon="info">
+                Quanto mais detalhes, mais precisos serão os orçamentos.
+              </InfoBanner>
+            )}
             {message && <AlertBanner>{message}</AlertBanner>}
             <View style={styles.actions}>
               {step < 3 ? (
@@ -370,14 +389,13 @@ export default function NewOrderScreen() {
                   Continuar
                 </Button>
               ) : (
-                <Button
-                  mode="contained"
+                <SubmitButton
                   contentStyle={styles.button}
                   loading={saving}
                   disabled={saving}
                   onPress={submit}>
                   {saving ? 'Enviando pedido...' : 'Enviar pedido'}
-                </Button>
+                </SubmitButton>
               )}
               {step > 1 && (
                 <Button mode="outlined" disabled={saving} onPress={back}>
@@ -430,9 +448,10 @@ export default function NewOrderScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: {
-    padding: 20,
+    padding: 16,
+    paddingTop: 4,
     paddingBottom: 32,
-    gap: 24,
+    gap: 16,
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',
@@ -440,7 +459,16 @@ const styles = StyleSheet.create({
   fields: { gap: 16 },
   field: { gap: 8 },
   actions: { gap: 12 },
-  button: { height: 52 },
+  button: { height: 40 },
+  categoryField: {
+    minHeight: 58,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 2,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+    borderBottomWidth: 1,
+  },
   state: { paddingVertical: 32, gap: 16, alignItems: 'center' },
   empty: { padding: 16, gap: 8, borderWidth: 1, borderRadius: 12 },
   address: { padding: 16, gap: 6, borderWidth: 1, borderRadius: 12 },

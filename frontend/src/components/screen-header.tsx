@@ -7,30 +7,50 @@ import { useAppTheme } from '@/constants/theme';
 type ScreenHeaderProps = {
   title?: string;
   onBack?: () => void;
+  variant?: 'onboarding' | 'app';
+  subtitle?: string;
 };
 
-export function ScreenHeader({ title, onBack }: ScreenHeaderProps) {
+export function ScreenHeader({
+  title,
+  onBack,
+  variant = 'onboarding',
+  subtitle,
+}: ScreenHeaderProps) {
   const { colors } = useAppTheme();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, variant === 'app' && styles.appContainer]}>
       {onBack ? (
         <Pressable
           onPress={onBack}
           accessibilityRole="button"
           accessibilityLabel="Voltar"
-          style={[styles.backButton, { borderColor: colors.surfaceVariant }]}>
+          style={[
+            styles.backButton,
+            { borderColor: colors.surfaceVariant },
+            variant === 'app' && styles.appBackButton,
+          ]}>
           <Image source={require('@/assets/icons/arrow-left.svg')} style={styles.backIcon} />
         </Pressable>
-      ) : (
+      ) : variant === 'onboarding' ? (
         <View style={styles.spacer} />
-      )}
+      ) : null}
       {title && (
-        <Text variant="titleMedium" accessibilityRole="header">
-          {title}
-        </Text>
+        <View style={variant === 'app' ? styles.appTitle : undefined}>
+          <Text
+            variant={variant === 'app' ? 'titleLarge' : 'titleMedium'}
+            accessibilityRole="header">
+            {title}
+          </Text>
+          {subtitle && (
+            <Text variant="bodySmall" style={{ color: colors.onSurfaceVariant }}>
+              {subtitle}
+            </Text>
+          )}
+        </View>
       )}
-      <View style={styles.spacer} />
+      {variant === 'onboarding' && <View style={styles.spacer} />}
     </View>
   );
 }
@@ -58,4 +78,17 @@ const styles = StyleSheet.create({
   spacer: {
     width: 40,
   },
+  appContainer: {
+    height: 'auto',
+    minHeight: 56,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 8,
+    justifyContent: 'flex-start',
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center',
+  },
+  appBackButton: { borderWidth: 0, marginLeft: -8 },
+  appTitle: { flex: 1, gap: 2 },
 });

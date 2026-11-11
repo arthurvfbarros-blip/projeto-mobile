@@ -58,8 +58,14 @@ export default function AddressesScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
-      <ScreenHeader title="Meus endereços" onBack={() => router.dismissTo('/cliente')} />
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
+      <ScreenHeader
+        variant="app"
+        title="Meus endereços"
+        onBack={() => router.dismissTo('/cliente')}
+      />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.presentation}>
           <Text variant="headlineSmall" accessibilityRole="header">

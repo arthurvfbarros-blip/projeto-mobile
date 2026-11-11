@@ -7,12 +7,22 @@ import { useAppTheme } from '@/constants/theme';
 
 type FormFieldProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> & {
   label: string;
-  icon: ImageProps['source'];
+  icon?: ImageProps['source'];
   helperText?: string;
   error?: string;
+  appearance?: 'filled' | 'outlined';
 };
 
-export function FormField({ label, icon, helperText, error, onFocus, onBlur, ...rest }: FormFieldProps) {
+export function FormField({
+  label,
+  icon,
+  helperText,
+  error,
+  appearance = 'filled',
+  onFocus,
+  onBlur,
+  ...rest
+}: FormFieldProps) {
   const { colors, fonts } = useAppTheme();
   const [focused, setFocused] = useState(false);
 
@@ -29,13 +39,23 @@ export function FormField({ label, icon, helperText, error, onFocus, onBlur, ...
         style={[
           styles.field,
           {
-            backgroundColor: hasError ? colors.errorContainer : colors.surfaceVariant,
-            borderColor: hasError ? colors.error : focused ? colors.primary : colors.outline,
+            backgroundColor: hasError
+              ? colors.errorContainer
+              : appearance === 'outlined'
+                ? colors.surfaceContainerLowest
+                : colors.surfaceVariant,
+            borderColor: hasError
+              ? colors.error
+              : focused
+                ? colors.primary
+                : appearance === 'outlined'
+                  ? colors.outlineVariant
+                  : colors.outline,
             borderWidth: highlighted ? 2 : 1,
             paddingHorizontal: highlighted ? 15 : 16,
           },
         ]}>
-        <Image source={icon} style={styles.icon} />
+        {icon && <Image source={icon} style={styles.icon} />}
         <TextInput
           {...rest}
           accessibilityLabel={label}
@@ -54,7 +74,9 @@ export function FormField({ label, icon, helperText, error, onFocus, onBlur, ...
         />
       </View>
       {supportingText && (
-        <Text variant="bodyMedium" style={{ color: hasError ? colors.error : colors.onSurfaceVariant }}>
+        <Text
+          variant="bodyMedium"
+          style={{ color: hasError ? colors.error : colors.onSurfaceVariant }}>
           {supportingText}
         </Text>
       )}
@@ -83,7 +105,7 @@ const styles = StyleSheet.create({
     padding: 0,
     ...Platform.select({
       android: { includeFontPadding: false, textAlignVertical: 'center' },
-      web: { outlineWidth: 0 },
+      web: { outlineWidth: 0, outlineStyle: 'solid' as const },
     }),
   },
 });

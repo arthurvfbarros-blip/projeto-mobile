@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertBanner } from '@/components/alert-banner';
 import { FormField } from '@/components/form-field';
 import { ScreenHeader } from '@/components/screen-header';
+import { SubmitButton } from '@/components/submit-button';
 import { useAppTheme } from '@/constants/theme';
 import { useSession } from '@/providers/session-provider';
 import { useOrderDraft } from '@/providers/order-draft-provider';
@@ -107,7 +108,7 @@ export default function NewAddressScreen() {
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
-      <ScreenHeader title="Novo endereço" onBack={saving ? undefined : goBack} />
+      <ScreenHeader variant="app" title="Novo endereço" onBack={saving ? undefined : goBack} />
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
@@ -209,14 +210,13 @@ export default function NewAddressScreen() {
         </View>
         {message && <AlertBanner>{message}</AlertBanner>}
         <View style={styles.actions}>
-          <Button
-            mode="contained"
+          <SubmitButton
             contentStyle={styles.button}
             onPress={handleSubmit}
             loading={saving}
             disabled={saving}>
             {saving ? 'Salvando endereço...' : 'Salvar endereço'}
-          </Button>
+          </SubmitButton>
           <Button mode="text" onPress={goBack} disabled={saving}>
             Cancelar
           </Button>

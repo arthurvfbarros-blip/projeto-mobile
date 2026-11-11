@@ -71,8 +71,11 @@ export default function OrderDetailsScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
       <ScreenHeader
+        variant="app"
         title="Detalhes do pedido"
         onBack={() => router.dismissTo('/cliente/pedidos')}
       />
@@ -115,6 +118,7 @@ export default function OrderDetailsScreen() {
             </View>
             <View style={[styles.card, { borderColor: colors.outlineVariant }]}>
               <OrderSummary
+                showTitle={false}
                 titulo={pedido.titulo}
                 descricao={pedido.descricao}
                 categoria={pedido.categoria.nome}
@@ -143,9 +147,9 @@ export default function OrderDetailsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: {
-    padding: 20,
+    padding: 16,
     paddingBottom: 32,
-    gap: 24,
+    gap: 16,
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',
