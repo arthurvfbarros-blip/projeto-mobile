@@ -91,3 +91,9 @@ export async function listQuotes(
   }
   return p;
 }
+
+export async function getClientQuote(token: string, id: number): Promise<Orcamento> {
+  const result = await getJson<unknown>(`/clientes/me/orcamentos/${id}`, token);
+  if (!isQuote(result)) throw new Error('Não foi possível carregar o orçamento. Tente novamente.');
+  return result;
+}

@@ -3,6 +3,8 @@ import { Image } from 'expo-image';
 import { useAppTheme } from '@/constants/theme';
 
 const icons = {
+  calendar: require('@/assets/icons/calendar.svg'),
+  check: require('@/assets/icons/check.svg'),
   home: require('@/assets/icons/login-home.svg'),
   pin: require('@/assets/icons/field-map-pin.svg'),
   user: require('@/assets/icons/profile-user.svg'),

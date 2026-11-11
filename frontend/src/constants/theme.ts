@@ -72,6 +72,8 @@ const colors = {
   },
   // Fora dos papéis que o Paper conhece
   success: '#146C2E',
+  successContainer: '#A4F4BA',
+  onSuccessContainer: '#005312',
   surfaceContainerLowest: '#FFFFFF',
 };
 
