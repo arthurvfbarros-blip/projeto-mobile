@@ -72,6 +72,10 @@ public class PedidoServico {
 		this.criadoEm = criadoEm;
 	}
 
+	public void receberOrcamento() {
+		if ("aberto".equals(status)) status = "em_orcamento";
+	}
+
 	public Integer getId() {
 		return id;
 	}
