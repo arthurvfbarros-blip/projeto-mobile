@@ -10,12 +10,14 @@ import { useAppTheme } from '@/constants/theme';
 import { useSession } from '@/providers/session-provider';
 import { ApiError } from '@/services/api';
 import { getOpportunity, opportunityError, type Oportunidade } from '@/services/opportunities';
+import { getMyQuote } from '@/services/quotes';
 import { formatCreatedAt, formatOrderDate, orderStatusLabel } from '@/utils/order-validation';
 
 export default function OpportunityDetailsScreen() {
   const { colors } = useAppTheme();
   const { session, expireSession } = useSession();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [hasQuote, setHasQuote] = useState(false);
   const [data, setData] = useState<Oportunidade | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,8 +46,17 @@ export default function OpportunityDetailsScreen() {
       return;
     }
     try {
-      const response = await getOpportunity(token, idPedido);
-      if (request === generation.current) setData(response);
+      const [response, quote] = await Promise.all([
+        getOpportunity(token, idPedido),
+        getMyQuote(token, idPedido).catch((failure) => {
+          if (failure instanceof ApiError && failure.status === 404) return null;
+          throw failure;
+        }),
+      ]);
+      if (request === generation.current) {
+        setData(response);
+        setHasQuote(!!quote);
+      }
     } catch (failure) {
       if (request !== generation.current) return;
       if (failure instanceof ApiError && failure.status === 401) {
@@ -75,7 +86,8 @@ export default function OpportunityDetailsScreen() {
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
+      style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}
+    >
       <ScreenHeader
         variant="app"
         title="Detalhes do pedido"
@@ -126,8 +138,12 @@ export default function OpportunityDetailsScreen() {
             <View
               style={[
                 styles.card,
-                { borderColor: colors.outlineVariant, backgroundColor: colors.surface },
-              ]}>
+                {
+                  borderColor: colors.outlineVariant,
+                  backgroundColor: colors.surface,
+                },
+              ]}
+            >
               <Text variant="labelLarge">Categoria</Text>
               <Text variant="bodyLarge">{data.categoria.nome}</Text>
               <Text variant="labelLarge">Descrição do serviço</Text>
@@ -142,6 +158,12 @@ export default function OpportunityDetailsScreen() {
               <Text variant="labelLarge">Data desejada</Text>
               <Text variant="bodyLarge">{formatOrderDate(data.dataDesejada)}</Text>
             </View>
+            <Button
+              mode="contained"
+              onPress={() => router.push(`/prestador/oportunidades/${id}/orcamento`)}
+            >
+              {hasQuote ? 'Ver orçamento' : 'Enviar orçamento'}
+            </Button>
             <Text variant="bodySmall" style={{ color: colors.onSurfaceVariant }}>
               A data desejada é uma preferência. O agendamento será confirmado em outra etapa.
             </Text>

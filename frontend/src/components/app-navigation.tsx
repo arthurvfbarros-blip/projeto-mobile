@@ -21,7 +21,7 @@ const destinations = {
 export function AppNavigation({ profile }: { profile: keyof typeof destinations }) {
   const { colors } = useAppTheme();
   const pathname = usePathname();
-  if (pathname.endsWith('/novo')) return null;
+  if (pathname.endsWith('/novo') || pathname.endsWith('/orcamento')) return null;
 
   return (
     <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surfaceContainerLowest }}>

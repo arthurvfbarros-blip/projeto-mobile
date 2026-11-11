@@ -18,6 +18,11 @@ public class ApiExceptionHandler {
 	public record ErroResponse(String mensagem, Map<String, String> campos) {
 	}
 
+	@ExceptionHandler(ConflitoException.class)
+	public ResponseEntity<ErroResponse> conflito(ConflitoException exception) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErroResponse(exception.getMessage(), Map.of()));
+	}
+
 	@ExceptionHandler(CampoInvalidoException.class)
 	public ResponseEntity<ErroResponse> campoInvalido(CampoInvalidoException exception) {
 		return ResponseEntity.badRequest().body(new ErroResponse("Dados inválidos",

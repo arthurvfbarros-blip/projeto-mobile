@@ -120,3 +120,14 @@ CREATE TABLE IF NOT EXISTS pedido_servico (
 );
 
 CREATE INDEX IF NOT EXISTS idx_pedido_servico_cliente ON pedido_servico (id_cliente, id_pedido);
+
+CREATE TABLE IF NOT EXISTS orcamento (
+    id_orcamento INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_pedido INTEGER NOT NULL REFERENCES pedido_servico(id_pedido) ON DELETE CASCADE,
+    id_prestador INTEGER NOT NULL REFERENCES prestador(id_prestador),
+    valor NUMERIC(10,2) NOT NULL CHECK (valor > 0),
+    prazo_dias INTEGER CHECK (prazo_dias > 0),
+    descricao TEXT,
+    status VARCHAR(15) NOT NULL DEFAULT 'enviado' CHECK (status IN ('enviado', 'aceito', 'recusado', 'expirado')),
+    CONSTRAINT uq_orcamento_pedido_prestador UNIQUE (id_pedido, id_prestador)
+);
