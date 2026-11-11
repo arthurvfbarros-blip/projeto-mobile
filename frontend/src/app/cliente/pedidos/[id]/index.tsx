@@ -16,7 +16,10 @@ import { formatCreatedAt, orderStatusLabel } from '@/utils/order-validation';
 export default function OrderDetailsScreen() {
   const { colors } = useAppTheme();
   const { session, expireSession } = useSession();
-  const { id, pedidoCriado } = useLocalSearchParams<{ id: string; pedidoCriado?: string }>();
+  const { id, pedidoCriado } = useLocalSearchParams<{
+    id: string;
+    pedidoCriado?: string;
+  }>();
   const [pedido, setPedido] = useState<Pedido | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +76,8 @@ export default function OrderDetailsScreen() {
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
+      style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}
+    >
       <ScreenHeader
         variant="app"
         title="Detalhes do pedido"
@@ -99,7 +103,8 @@ export default function OrderDetailsScreen() {
               mode="outlined"
               onPress={() => {
                 void load();
-              }}>
+              }}
+            >
               Tentar novamente
             </Button>
           </>
@@ -126,6 +131,12 @@ export default function OrderDetailsScreen() {
                 endereco={pedido.endereco}
               />
             </View>
+            <Button
+              mode="contained"
+              onPress={() => router.push(`/cliente/pedidos/${id}/orcamentos`)}
+            >
+              Ver orçamentos
+            </Button>
             <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
               A data desejada é uma preferência. O agendamento será confirmado em outra etapa.
             </Text>
@@ -137,7 +148,8 @@ export default function OrderDetailsScreen() {
       </ScrollView>
       <Snackbar
         visible={pedidoCriado === '1'}
-        onDismiss={() => router.setParams({ pedidoCriado: undefined })}>
+        onDismiss={() => router.setParams({ pedidoCriado: undefined })}
+      >
         Pedido enviado com sucesso!
       </Snackbar>
     </SafeAreaView>
