@@ -19,13 +19,13 @@ const PROFILES = {
     action: 'Continuar como usuário',
     href: '/cadastro/usuario',
   },
-  empresa: {
-    title: 'Sou empresa',
-    description: 'Quero oferecer serviços e gerenciar clientes.',
+  prestador: {
+    title: 'Sou prestador',
+    description: 'Quero oferecer serviços como profissional ou empresa.',
     icon: require('@/assets/icons/profile-company.svg'),
     selectedIcon: require('@/assets/icons/profile-company-selected.svg'),
-    action: 'Continuar como empresa',
-    href: '/cadastro/empresa',
+    action: 'Continuar como prestador',
+    href: '/cadastro/prestador',
   },
 } as const;
 
@@ -101,6 +101,7 @@ function ProfileOption({ title, description, icon, selectedIcon, selected, onPre
       onPress={onPress}
       accessibilityRole="radio"
       accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       style={[
         styles.option,
         selected
