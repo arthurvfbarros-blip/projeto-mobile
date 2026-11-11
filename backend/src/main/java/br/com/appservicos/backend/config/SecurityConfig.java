@@ -49,11 +49,12 @@ public class SecurityConfig {
 				.cors(Customizer.withDefaults())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers(HttpMethod.POST, "/auth/login", "/auth/cadastro/cliente").permitAll()
+						.requestMatchers(HttpMethod.POST, "/auth/login", "/auth/cadastro/cliente", "/auth/cadastro/prestador").permitAll()
 						.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 						.requestMatchers(HttpMethod.GET, "/categorias").permitAll()
 						.requestMatchers("/clientes/me/enderecos", "/clientes/me/enderecos/**").hasRole("cliente")
 						.requestMatchers("/clientes/me/pedidos", "/clientes/me/pedidos/**").hasRole("cliente")
+						.requestMatchers("/prestadores/me", "/prestadores/me/**").hasRole("prestador")
 						.anyRequest().authenticated())
 				.oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt.jwtAuthenticationConverter(authentication)))
 				.build();

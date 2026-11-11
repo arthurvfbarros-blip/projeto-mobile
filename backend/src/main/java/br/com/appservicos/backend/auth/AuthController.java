@@ -13,6 +13,9 @@ import br.com.appservicos.backend.auth.dto.LoginResponse;
 import br.com.appservicos.backend.cliente.CadastroClienteService;
 import br.com.appservicos.backend.cliente.dto.CadastroClienteRequest;
 import br.com.appservicos.backend.cliente.dto.CadastroClienteResponse;
+import br.com.appservicos.backend.prestador.PrestadorService;
+import br.com.appservicos.backend.prestador.dto.CadastroPrestadorRequest;
+import br.com.appservicos.backend.prestador.dto.CadastroPrestadorResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -21,10 +24,12 @@ public class AuthController {
 
 	private final AuthService service;
 	private final CadastroClienteService cadastroClientes;
+	private final PrestadorService prestadores;
 
-	public AuthController(AuthService service, CadastroClienteService cadastroClientes) {
+	public AuthController(AuthService service, CadastroClienteService cadastroClientes, PrestadorService prestadores) {
 		this.service = service;
 		this.cadastroClientes = cadastroClientes;
+		this.prestadores = prestadores;
 	}
 
 	@PostMapping("/login")
@@ -36,5 +41,11 @@ public class AuthController {
 	public ResponseEntity<CadastroClienteResponse> cadastrarCliente(@Valid @RequestBody CadastroClienteRequest request) {
 		return ResponseEntity.status(HttpStatus.CREATED).cacheControl(CacheControl.noStore())
 				.body(cadastroClientes.cadastrar(request));
+	}
+
+	@PostMapping("/cadastro/prestador")
+	public ResponseEntity<CadastroPrestadorResponse> cadastrarPrestador(@Valid @RequestBody CadastroPrestadorRequest request) {
+		return ResponseEntity.status(HttpStatus.CREATED).cacheControl(CacheControl.noStore())
+				.body(prestadores.cadastrar(request));
 	}
 }
