@@ -156,7 +156,21 @@ export function AppointmentDetails({ profile }: { profile: AgendaProfile }) {
                   Seu horário está reservado. Acompanhe este agendamento pela Agenda.
                 </InfoBanner>
               )}
-              <Button mode="contained" onPress={() => router.dismissTo(list)}>
+              {data.status === 'confirmado' && (
+                <Button
+                  mode="contained"
+                  onPress={() =>
+                    router.push(
+                      profile === 'cliente'
+                        ? `/cliente/agendamentos/${data.idAgendamento}/chat`
+                        : `/prestador/agendamentos/${data.idAgendamento}/chat`,
+                    )
+                  }
+                >
+                  Mensagem
+                </Button>
+              )}
+              <Button mode="outlined" onPress={() => router.dismissTo(list)}>
                 Ver meus agendamentos
               </Button>
               {profile === 'cliente' && (
