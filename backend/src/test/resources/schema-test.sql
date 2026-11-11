@@ -155,3 +155,15 @@ CREATE TABLE IF NOT EXISTS agendamento (
     endereco_cidade VARCHAR(100) NOT NULL,
     endereco_uf VARCHAR(2) NOT NULL
 );
+
+ALTER TABLE agendamento ADD COLUMN IF NOT EXISTS conversa_iniciada_em TIMESTAMP WITH TIME ZONE;
+CREATE TABLE IF NOT EXISTS mensagem (
+ id_mensagem INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ id_agendamento INTEGER NOT NULL REFERENCES agendamento(id_agendamento),
+ id_remetente INTEGER NOT NULL REFERENCES usuario(id_usuario),
+ id_envio UUID NOT NULL,
+ conteudo TEXT NOT NULL CHECK (LENGTH(TRIM(conteudo)) > 0 AND LENGTH(conteudo) <= 2000),
+ criado_em TIMESTAMP WITH TIME ZONE NOT NULL,
+ CONSTRAINT uq_mensagem_envio UNIQUE (id_agendamento,id_remetente,id_envio)
+);
+CREATE INDEX IF NOT EXISTS idx_mensagem_agendamento_id ON mensagem(id_agendamento,id_mensagem);
