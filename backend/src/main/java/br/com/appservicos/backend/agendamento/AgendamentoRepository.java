@@ -1,0 +1,44 @@
+package br.com.appservicos.backend.agendamento;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import java.util.Optional;
+
+public interface AgendamentoRepository
+        extends JpaRepository<Agendamento, Integer>, JpaSpecificationExecutor<Agendamento> {
+    @Override
+    @EntityGraph(
+            attributePaths = {
+                "disponibilidade",
+                "orcamento",
+                "orcamento.prestador",
+                "orcamento.pedido",
+                "orcamento.pedido.cliente"
+            })
+    Page<Agendamento> findAll(Specification<Agendamento> spec, Pageable page);
+
+    @EntityGraph(
+            attributePaths = {
+                "disponibilidade",
+                "orcamento",
+                "orcamento.prestador",
+                "orcamento.pedido",
+                "orcamento.pedido.cliente"
+            })
+    Optional<Agendamento> findByIdAndOrcamentoPedidoClienteId(Integer id, Integer cliente);
+
+    @EntityGraph(
+            attributePaths = {
+                "disponibilidade",
+                "orcamento",
+                "orcamento.prestador",
+                "orcamento.pedido",
+                "orcamento.pedido.cliente"
+            })
+    Optional<Agendamento> findByIdAndOrcamentoPrestadorId(Integer id, Integer prestador);
+}

@@ -10,10 +10,12 @@ const destinations = {
   cliente: [
     { href: '/cliente', label: 'Início', icon: 'home' },
     { href: '/cliente/pedidos', label: 'Pedidos', icon: 'clipboard' },
+    { href: '/cliente/agendamentos', label: 'Agenda', icon: 'calendar' },
     { href: '/cliente/enderecos', label: 'Endereços', icon: 'pin' },
   ],
   prestador: [
     { href: '/prestador/oportunidades', label: 'Oportunidades', icon: 'clipboard' },
+    { href: '/prestador/agendamentos', label: 'Agenda', icon: 'calendar' },
     { href: '/prestador', label: 'Perfil', icon: 'user' },
   ],
 } as const;
@@ -21,19 +23,27 @@ const destinations = {
 export function AppNavigation({ profile }: { profile: keyof typeof destinations }) {
   const { colors } = useAppTheme();
   const pathname = usePathname();
-  if (pathname.endsWith('/novo') || pathname.endsWith('/orcamento')) return null;
+  if (
+    pathname.endsWith('/novo') ||
+    pathname.endsWith('/orcamento') ||
+    pathname.endsWith('/agendar')
+  )
+    return null;
 
   return (
     <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surfaceContainerLowest }}>
       <View
         style={[styles.bar, { borderTopColor: colors.surfaceVariant }]}
-        accessibilityRole="tablist">
+        accessibilityRole="tablist"
+      >
         {destinations[profile].map((item) => {
           const selected =
             pathname === item.href ||
             (item.href !== '/cliente' &&
               item.href !== '/prestador' &&
-              pathname.startsWith(item.href + '/'));
+              pathname.startsWith(item.href + '/')) ||
+            (item.href === '/prestador/agendamentos' &&
+              pathname.startsWith('/prestador/disponibilidades'));
           return (
             <Pressable
               key={item.href}
@@ -42,12 +52,11 @@ export function AppNavigation({ profile }: { profile: keyof typeof destinations 
               accessibilityState={{ selected }}
               aria-selected={selected}
               onPress={() => router.navigate(item.href)}
-              style={styles.item}>
+              style={styles.item}
+            >
               <View
-                style={[
-                  styles.indicator,
-                  selected && { backgroundColor: colors.primaryContainer },
-                ]}>
+                style={[styles.indicator, selected && { backgroundColor: colors.primaryContainer }]}
+              >
                 <AppIcon
                   name={item.icon}
                   color={selected ? colors.onPrimaryContainer : colors.onSurfaceVariant}
@@ -55,7 +64,8 @@ export function AppNavigation({ profile }: { profile: keyof typeof destinations 
               </View>
               <Text
                 variant="labelMedium"
-                style={{ color: selected ? colors.onSurface : colors.onSurfaceVariant }}>
+                style={{ color: selected ? colors.onSurface : colors.onSurfaceVariant }}
+              >
                 {item.label}
               </Text>
             </Pressable>

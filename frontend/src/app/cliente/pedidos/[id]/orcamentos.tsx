@@ -178,6 +178,21 @@ export default function ReceivedQuotesScreen() {
                           {quote.descricao}
                         </Text>
                       )}
+                      {quote.status === 'enviado' &&
+                        pedido &&
+                        ['aberto', 'em_orcamento'].includes(pedido.status) && (
+                          <Button
+                            mode="contained"
+                            accessibilityLabel={`Agendar com ${quote.prestador.nome}`}
+                            onPress={() =>
+                              router.push(
+                                `/cliente/pedidos/${id}/agendar?orcamento=${quote.idOrcamento}`,
+                              )
+                            }
+                          >
+                            Agendar
+                          </Button>
+                        )}
                     </View>
                   ))}
                   {data.totalPaginas > 1 && (

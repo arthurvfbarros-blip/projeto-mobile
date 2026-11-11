@@ -35,6 +35,11 @@ public class OrcamentoController {
 				.body(service.buscarDoPrestador(jwt.getSubject(), idPedido));
 	}
 
+	@GetMapping("/clientes/me/orcamentos/{idOrcamento}")
+	public ResponseEntity<OrcamentoResponse> buscarCliente(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer idOrcamento) {
+		return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(service.buscarDoCliente(jwt.getSubject(), idOrcamento));
+	}
+
 	@GetMapping("/clientes/me/pedidos/{idPedido}/orcamentos")
 	public ResponseEntity<PaginaOrcamentosResponse> listar(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer idPedido,
 			@RequestParam(defaultValue = "0") int pagina, @RequestParam(defaultValue = "10") int tamanho) {
