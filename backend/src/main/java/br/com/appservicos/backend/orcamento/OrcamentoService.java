@@ -61,6 +61,13 @@ public class OrcamentoService {
 	}
 
 	@Transactional(readOnly = true)
+	public OrcamentoResponse buscarDoCliente(String usuario, Integer id) {
+		var cliente = clientes.buscar(usuario);
+		return orcamentos.findByIdAndPedidoClienteId(id, cliente.getId()).map(OrcamentoResponse::from)
+				.orElseThrow(() -> new RecursoNaoEncontradoException("Orçamento não encontrado"));
+	}
+
+	@Transactional(readOnly = true)
 	public OrcamentoResponse buscarDoPrestador(String idUsuario, Integer idPedido) {
 		var prestador = prestadores.buscar(idUsuario);
 		return orcamentos.findByPedidoIdAndPrestadorId(idPedido, prestador.getId()).map(OrcamentoResponse::from)

@@ -50,6 +50,9 @@ public class Orcamento {
 		this.status = "enviado";
 	}
 
+	public void aceitar() { status = "aceito"; }
+	public void recusar() { status = "recusado"; }
+
 	public Integer getId() { return id; }
 	public PedidoServico getPedido() { return pedido; }
 	public Prestador getPrestador() { return prestador; }

@@ -72,6 +72,9 @@ public class PedidoServico {
 		this.criadoEm = criadoEm;
 	}
 
+	public Cliente getCliente() { return cliente; }
+	public void agendar() { status = "agendado"; }
+
 	public void receberOrcamento() {
 		if ("aberto".equals(status)) status = "em_orcamento";
 	}

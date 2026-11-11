@@ -1,6 +1,5 @@
 package br.com.appservicos.backend.oportunidade;
 
-import java.text.Normalizer;
 import java.util.Locale;
 
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +16,7 @@ import br.com.appservicos.backend.oportunidade.dto.OportunidadeResponse;
 import br.com.appservicos.backend.pedido.PedidoServico;
 import br.com.appservicos.backend.pedido.PedidoServicoRepository;
 import br.com.appservicos.backend.pedido.dto.PaginaPedidosResponse;
+import br.com.appservicos.backend.prestador.AreaAtendimento;
 import br.com.appservicos.backend.prestador.Prestador;
 import br.com.appservicos.backend.prestador.PrestadorAutenticadoService;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -91,9 +91,7 @@ public class OportunidadeService {
 	}
 
 	private static String normalizarLocal(String valor) {
-		return Normalizer.normalize(valor, Normalizer.Form.NFD)
-				.replaceAll("\\p{M}", "")
-				.strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+		return AreaAtendimento.normalizar(valor);
 	}
 
 	private static Expression<String> normalizarLocal(CriteriaBuilder cb, Expression<String> valor) {

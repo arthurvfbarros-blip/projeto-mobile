@@ -131,3 +131,27 @@ CREATE TABLE IF NOT EXISTS orcamento (
     status VARCHAR(15) NOT NULL DEFAULT 'enviado' CHECK (status IN ('enviado', 'aceito', 'recusado', 'expirado')),
     CONSTRAINT uq_orcamento_pedido_prestador UNIQUE (id_pedido, id_prestador)
 );
+
+CREATE TABLE IF NOT EXISTS disponibilidade (
+    id_disponibilidade INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_prestador INTEGER NOT NULL REFERENCES prestador(id_prestador) ON DELETE CASCADE,
+    data DATE NOT NULL,
+    hora TIME NOT NULL,
+    cep VARCHAR(8),
+    status VARCHAR(10) NOT NULL DEFAULT 'livre' CHECK (status IN ('livre','ocupado')),
+    CONSTRAINT uq_disponibilidade_prestador_data_hora UNIQUE (id_prestador,data,hora)
+);
+
+CREATE TABLE IF NOT EXISTS agendamento (
+    id_agendamento INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_orcamento INTEGER NOT NULL UNIQUE REFERENCES orcamento(id_orcamento),
+    id_disponibilidade INTEGER NOT NULL UNIQUE REFERENCES disponibilidade(id_disponibilidade),
+    status VARCHAR(15) NOT NULL DEFAULT 'confirmado' CHECK (status IN ('confirmado','cancelado','concluido')),
+    endereco_cep VARCHAR(8) NOT NULL,
+    endereco_logradouro VARCHAR(150) NOT NULL,
+    endereco_numero VARCHAR(20) NOT NULL,
+    endereco_complemento VARCHAR(100),
+    endereco_bairro VARCHAR(100) NOT NULL,
+    endereco_cidade VARCHAR(100) NOT NULL,
+    endereco_uf VARCHAR(2) NOT NULL
+);
