@@ -149,7 +149,11 @@ export function AppointmentList({ profile }: { profile: AgendaProfile }) {
                         },
                       ]}
                     >
-                      {appointmentStatus(a.status)}
+                      {a.status === 'confirmado' && a.situacaoConversa === 'aguardando_conversa'
+                        ? 'Aguardando conversa'
+                        : a.status === 'confirmado' && a.situacaoConversa === 'em_conversa'
+                          ? 'Conversa iniciada'
+                          : appointmentStatus(a.status)}
                     </Text>
                     <Text variant="bodySmall">#{a.idAgendamento}</Text>
                   </View>
@@ -169,6 +173,21 @@ export function AppointmentList({ profile }: { profile: AgendaProfile }) {
                       {a.endereco.logradouro}, {a.endereco.numero}
                     </Text>
                   </View>
+                  {a.status === 'confirmado' && (
+                    <Button
+                      mode="contained"
+                      accessibilityLabel={`Mensagem sobre ${a.tituloPedido}`}
+                      onPress={() =>
+                        router.push(
+                          profile === 'cliente'
+                            ? `/cliente/agendamentos/${a.idAgendamento}/chat`
+                            : `/prestador/agendamentos/${a.idAgendamento}/chat`,
+                        )
+                      }
+                    >
+                      Mensagem
+                    </Button>
+                  )}
                   <Button
                     mode="outlined"
                     onPress={() =>

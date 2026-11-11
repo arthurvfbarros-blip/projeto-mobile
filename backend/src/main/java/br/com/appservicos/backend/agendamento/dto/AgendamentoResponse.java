@@ -18,7 +18,8 @@ public record AgendamentoResponse(
         LocalDate data,
         LocalTime hora,
         String status,
-        EnderecoPedidoResponse endereco) {
+        EnderecoPedidoResponse endereco,
+        String situacaoConversa) {
     public static AgendamentoResponse from(Agendamento a) {
         var o = a.getOrcamento();
         var d = a.getDisponibilidade();
@@ -33,6 +34,7 @@ public record AgendamentoResponse(
                 d.getData(),
                 d.getHora(),
                 a.getStatus(),
-                EnderecoPedidoResponse.from(a.getEndereco()));
+                EnderecoPedidoResponse.from(a.getEndereco()),
+                a.getSituacaoConversa());
     }
 }

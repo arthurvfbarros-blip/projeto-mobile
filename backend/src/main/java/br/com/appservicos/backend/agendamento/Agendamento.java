@@ -16,6 +16,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "agendamento")
 public class Agendamento {
@@ -36,6 +38,19 @@ public class Agendamento {
     private String status;
 
     @Embedded private EnderecoPedido endereco;
+
+    @Column(name = "conversa_iniciada_em")
+    private Instant conversaIniciadaEm;
+
+    public void iniciarConversa(Instant instante) {
+        if (conversaIniciadaEm == null) conversaIniciadaEm = instante;
+    }
+
+    public String getSituacaoConversa() {
+        return !"confirmado".equals(status)
+                ? null
+                : conversaIniciadaEm == null ? "aguardando_conversa" : "em_conversa";
+    }
 
     protected Agendamento() {}
 

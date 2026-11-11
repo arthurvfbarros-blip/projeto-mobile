@@ -89,6 +89,8 @@ public class Prestador {
 		return usuario;
 	}
 
+	public String getTelefone() { return telefone; }
+
 	public String getNome() {
 		return nome;
 	}

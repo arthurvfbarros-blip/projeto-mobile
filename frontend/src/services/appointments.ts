@@ -20,6 +20,7 @@ export type Agendamento = {
   data: string;
   hora: string;
   status: string;
+  situacaoConversa?: string | null;
   endereco: NovoEndereco;
 };
 export type Page<T> = {
