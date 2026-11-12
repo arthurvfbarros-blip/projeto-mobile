@@ -1,6 +1,7 @@
 package br.com.appservicos.backend.agendamento.dto;
 
 import br.com.appservicos.backend.agendamento.Agendamento;
+import br.com.appservicos.backend.contratacao.dto.ContratacaoResponse;
 import br.com.appservicos.backend.pedido.dto.EnderecoPedidoResponse;
 
 import java.math.BigDecimal;
@@ -19,7 +20,8 @@ public record AgendamentoResponse(
         LocalTime hora,
         String status,
         EnderecoPedidoResponse endereco,
-        String situacaoConversa) {
+        String situacaoConversa,
+        ContratacaoResponse contratacao) {
     public static AgendamentoResponse from(Agendamento a) {
         var o = a.getOrcamento();
         var d = a.getDisponibilidade();
@@ -35,6 +37,7 @@ public record AgendamentoResponse(
                 d.getHora(),
                 a.getStatus(),
                 EnderecoPedidoResponse.from(a.getEndereco()),
-                a.getSituacaoConversa());
+                a.getSituacaoConversa(),
+                ContratacaoResponse.from(a.getContratacao()));
     }
 }

@@ -15,6 +15,7 @@ public interface AgendamentoRepository
         extends JpaRepository<Agendamento, Integer>, JpaSpecificationExecutor<Agendamento> {
     @EntityGraph(
             attributePaths = {
+                "contratacao",
                 "disponibilidade",
                 "orcamento",
                 "orcamento.prestador",
@@ -33,6 +34,7 @@ public interface AgendamentoRepository
     @Override
     @EntityGraph(
             attributePaths = {
+                "contratacao",
                 "disponibilidade",
                 "orcamento",
                 "orcamento.prestador",
@@ -43,6 +45,7 @@ public interface AgendamentoRepository
 
     @EntityGraph(
             attributePaths = {
+                "contratacao",
                 "disponibilidade",
                 "orcamento",
                 "orcamento.prestador",
@@ -53,6 +56,7 @@ public interface AgendamentoRepository
 
     @EntityGraph(
             attributePaths = {
+                "contratacao",
                 "disponibilidade",
                 "orcamento",
                 "orcamento.prestador",

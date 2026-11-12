@@ -1,5 +1,6 @@
 package br.com.appservicos.backend.agendamento;
 
+import br.com.appservicos.backend.contratacao.Contratacao;
 import br.com.appservicos.backend.disponibilidade.Disponibilidade;
 import br.com.appservicos.backend.endereco.EnderecoCliente;
 import br.com.appservicos.backend.orcamento.Orcamento;
@@ -38,6 +39,17 @@ public class Agendamento {
     private String status;
 
     @Embedded private EnderecoPedido endereco;
+
+    @OneToOne(mappedBy = "agendamento", fetch = FetchType.LAZY)
+    private Contratacao contratacao;
+
+    public Contratacao getContratacao() {
+        return contratacao;
+    }
+
+    public void registrarContratacao(Contratacao contratacao) {
+        this.contratacao = contratacao;
+    }
 
     @Column(name = "conversa_iniciada_em")
     private Instant conversaIniciadaEm;

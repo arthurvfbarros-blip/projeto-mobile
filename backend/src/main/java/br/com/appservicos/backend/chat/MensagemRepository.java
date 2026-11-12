@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MensagemRepository extends JpaRepository<Mensagem, Integer> {
+    boolean existsByAgendamentoIdAndRemetenteId(Integer agendamento,Integer remetente);
+
     Optional<Mensagem> findByAgendamentoIdAndRemetenteIdAndIdEnvio(
             Integer agendamento, Integer remetente, UUID idEnvio);
 

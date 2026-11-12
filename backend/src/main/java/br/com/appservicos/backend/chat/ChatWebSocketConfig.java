@@ -53,7 +53,7 @@ public class ChatWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic")
+        registry.enableSimpleBroker("/topic", "/queue")
                 .setTaskScheduler(chatHeartbeatScheduler())
                 .setHeartbeatValue(new long[] {10000, 10000});
         registry.setApplicationDestinationPrefixes("/app");

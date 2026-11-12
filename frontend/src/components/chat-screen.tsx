@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { ActivityIndicator, Button, Text } from 'react-native-paper';
+import { ActivityIndicator, Button, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertBanner } from '@/components/alert-banner';
 import { ScreenHeader } from '@/components/screen-header';
@@ -28,7 +28,8 @@ import {
   type ChatContext,
   type Mensagem,
 } from '@/services/chat';
-import { validRequestId } from '@/utils/quote-validation';
+import { readNotification, type Notificacao } from '@/services/notifications';
+import { formatMoney, validRequestId } from '@/utils/quote-validation';
 
 type PendingMessage = { id: string; text: string };
 export function ChatScreen({ profile }: { profile: AgendaProfile }) {
@@ -69,6 +70,7 @@ function Conversation({
     [contacts, setContacts] = useState(false),
     [older, setOlder] = useState<number | null>(null),
     [loadingOlder, setLoadingOlder] = useState(false);
+  const [notification, setNotification] = useState<Notificacao | null>(null);
   const generation = useRef(0),
     latest = useRef(0),
     pending = useRef<PendingMessage | null>(null),
@@ -161,6 +163,21 @@ function Conversation({
         setOlder(page.proximoCursor);
         atBottom.current = true;
         client = connectChat(token!, appointment!, {
+          onNotification:
+            profile === 'prestador'
+              ? (notification) => {
+                  if (active() && notification.idAgendamento === appointment) {
+                    setNotification(notification);
+                    void getChat(token!, appointment!)
+                      .then((result) => {
+                        if (active()) setContext(result);
+                      })
+                      .catch((failure) => {
+                        if (active()) void handleFailure(failure);
+                      });
+                  }
+                }
+              : undefined,
           onConnected: () => {
             if (active()) {
               setConnected(true);
@@ -197,7 +214,7 @@ function Conversation({
       void client?.deactivate();
       socket.current = null;
     };
-  }, [appointment, handleFailure, merge, token]);
+  }, [appointment, handleFailure, merge, profile, token]);
   useFocusEffect(start);
 
   async function loadOlder() {
@@ -252,6 +269,18 @@ function Conversation({
       if (request === generation.current) setSending(false);
     }
   }
+  async function openNotification() {
+    if (!token || !notification) return;
+    try {
+      await readNotification(token, notification.idNotificacao);
+      router.push(`/prestador/agendamentos/${notification.idAgendamento}`);
+    } catch (failure) {
+      if (!(await handleFailure(failure)))
+        setError(
+          failure instanceof Error ? failure.message : 'Não foi possível abrir a contratação.',
+        );
+    }
+  }
   const contact = context ? (profile === 'cliente' ? context.prestador : context.cliente) : null;
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.surfaceContainerLowest }]}>
@@ -297,6 +326,13 @@ function Conversation({
                   {contacts ? 'Ocultar contatos' : 'Ver contatos'}
                 </Button>
               </View>
+              {context.contratacao && (
+                <View style={{ padding: 12, backgroundColor: colors.successContainer }}>
+                  <Text variant="labelLarge" style={{ color: colors.onSuccessContainer }}>
+                    Serviço contratado · {formatMoney(context.contratacao.valor)}
+                  </Text>
+                </View>
+              )}
               {contacts && (
                 <View style={[styles.contacts, { backgroundColor: colors.primaryContainer }]}>
                   <Text variant="labelLarge">Contato de {contact?.nome}</Text>
@@ -399,6 +435,18 @@ function Conversation({
           )
         )}
       </KeyboardAvoidingView>
+      <Snackbar
+        visible={notification !== null}
+        onDismiss={() => setNotification(null)}
+        action={{
+          label: 'Ver',
+          onPress: () => {
+            void openNotification();
+          },
+        }}
+      >
+        Contratação confirmada pelo cliente
+      </Snackbar>
     </SafeAreaView>
   );
 }

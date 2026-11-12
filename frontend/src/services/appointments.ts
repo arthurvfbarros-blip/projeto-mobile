@@ -1,4 +1,5 @@
 import { getJson, postJson } from '@/services/api';
+import { type Contratacao } from '@/services/contracts';
 import { type NovoEndereco } from '@/services/addresses';
 
 export type AgendaProfile = 'cliente' | 'prestador';
@@ -21,6 +22,7 @@ export type Agendamento = {
   hora: string;
   status: string;
   situacaoConversa?: string | null;
+  contratacao?: Contratacao | null;
   endereco: NovoEndereco;
 };
 export type Page<T> = {
@@ -41,7 +43,7 @@ function isSlot(value: unknown): value is Disponibilidade {
   const d = value as Disponibilidade;
   return id(d.idDisponibilidade) && date(d.data) && time(d.hora) && typeof d.status === 'string';
 }
-function isAppointment(value: unknown): value is Agendamento {
+export function isAppointment(value: unknown): value is Agendamento {
   if (!value || typeof value !== 'object') return false;
   const a = value as Agendamento,
     e = a.endereco;
