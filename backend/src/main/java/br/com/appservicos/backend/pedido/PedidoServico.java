@@ -73,6 +73,7 @@ public class PedidoServico {
 	}
 
 	public Cliente getCliente() { return cliente; }
+	public void confirmarContratacao() { status = "contratado"; }
 	public void agendar() { status = "agendado"; }
 
 	public void receberOrcamento() {

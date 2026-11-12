@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS pedido_servico (
     CONSTRAINT fk_pedido_servico_cliente FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente),
     CONSTRAINT fk_pedido_servico_categoria FOREIGN KEY (id_categoria) REFERENCES categoria_servico (id_categoria),
     CONSTRAINT fk_pedido_servico_endereco FOREIGN KEY (id_endereco) REFERENCES endereco_cliente (id_endereco) ON DELETE SET NULL,
-    CONSTRAINT ck_pedido_servico_status CHECK (status IN ('aberto', 'em_orcamento', 'aguardando_confirmacao', 'agendado', 'concluido', 'cancelado'))
+    CONSTRAINT ck_pedido_servico_status CHECK (status IN ('aberto', 'em_orcamento', 'aguardando_confirmacao', 'agendado', 'contratado', 'concluido', 'cancelado'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_pedido_servico_cliente ON pedido_servico (id_cliente, id_pedido);
@@ -167,3 +167,21 @@ CREATE TABLE IF NOT EXISTS mensagem (
  CONSTRAINT uq_mensagem_envio UNIQUE (id_agendamento,id_remetente,id_envio)
 );
 CREATE INDEX IF NOT EXISTS idx_mensagem_agendamento_id ON mensagem(id_agendamento,id_mensagem);
+
+CREATE TABLE IF NOT EXISTS contratacao (
+ id_contratacao INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ id_agendamento INTEGER NOT NULL UNIQUE REFERENCES agendamento(id_agendamento),
+ valor NUMERIC(10,2) NOT NULL CHECK (valor>0),
+ confirmada_em TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE TABLE IF NOT EXISTS notificacao (
+ id_notificacao INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ id_usuario INTEGER NOT NULL REFERENCES usuario(id_usuario),
+ id_agendamento INTEGER NOT NULL REFERENCES agendamento(id_agendamento),
+ tipo VARCHAR(40) NOT NULL CHECK (tipo='contratacao_confirmada'),
+ mensagem VARCHAR(250) NOT NULL,
+ criada_em TIMESTAMP WITH TIME ZONE NOT NULL,
+ lida_em TIMESTAMP WITH TIME ZONE,
+ CONSTRAINT uq_notificacao_usuario_agendamento_tipo UNIQUE(id_usuario,id_agendamento,tipo)
+);
+CREATE INDEX IF NOT EXISTS idx_notificacao_usuario_lida_id ON notificacao(id_usuario,lida_em,id_notificacao);

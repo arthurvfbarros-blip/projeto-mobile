@@ -64,7 +64,9 @@ public class ChatSocketSeguranca {
         }
         jwt = token(session);
         if (command == StompCommand.SUBSCRIBE) {
-            acesso.buscar(jwt.getSubject(), agendamento(headers.getDestination()));
+            if ("/user/queue/notificacoes".equals(headers.getDestination())) {
+                if (!"prestador".equals(jwt.getClaimAsString("tipoUsuario"))) throw negado();
+            } else acesso.buscar(jwt.getSubject(), agendamento(headers.getDestination()));
             if (headers.getFirstNativeHeader("selector") != null) throw negado();
         } else if (command != StompCommand.UNSUBSCRIBE && command != null) {
             throw negado();
@@ -77,7 +79,10 @@ public class ChatSocketSeguranca {
         if (headers.getMessageType() != SimpMessageType.MESSAGE) return message;
         try {
             var jwt = token(headers.getSessionId());
-            acesso.buscar(jwt.getSubject(), agendamento(headers.getDestination()));
+            if (("/queue/notificacoes-user" + headers.getSessionId())
+                    .equals(headers.getDestination())) {
+                if (!"prestador".equals(jwt.getClaimAsString("tipoUsuario"))) return null;
+            } else acesso.buscar(jwt.getSubject(), agendamento(headers.getDestination()));
             return message;
         } catch (RuntimeException exception) {
             return null;
