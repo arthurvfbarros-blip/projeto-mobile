@@ -1,7 +1,7 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Button, Text } from 'react-native-paper';
+import { ActivityIndicator, Button, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppIcon } from '@/components/app-icon';
 import { InfoBanner } from '@/components/info-banner';
@@ -17,7 +17,11 @@ import { formatMoney, validRequestId } from '@/utils/quote-validation';
 export function AppointmentDetails({ profile }: { profile: AgendaProfile }) {
   const { colors, fonts } = useAppTheme(),
     { session, expireSession } = useSession();
-  const { id, novo } = useLocalSearchParams<{ id: string; novo?: string }>();
+  const { id, novo, contratacaoConfirmada } = useLocalSearchParams<{
+    id: string;
+    novo?: string;
+    contratacaoConfirmada?: string;
+  }>();
   const token = session?.accessToken;
   const [data, setData] = useState<Agendamento | null>(null),
     [loading, setLoading] = useState(true),
@@ -116,7 +120,9 @@ export function AppointmentDetails({ profile }: { profile: AgendaProfile }) {
                   },
                 ]}
               >
-                {appointmentStatus(data.status)}
+                {data.contratacao && data.status === 'confirmado'
+                  ? 'Serviço contratado'
+                  : appointmentStatus(data.status)}
               </Text>
               <View
                 style={[
@@ -151,6 +157,38 @@ export function AppointmentDetails({ profile }: { profile: AgendaProfile }) {
                 <Text variant="bodyLarge">{formatMoney(data.valor)}</Text>
                 <Text variant="bodySmall">Agendamento #{data.idAgendamento}</Text>
               </View>
+              {data.contratacao && (
+                <View
+                  style={[
+                    styles.card,
+                    {
+                      borderColor: colors.outlineVariant,
+                      backgroundColor: colors.successContainer,
+                    },
+                  ]}
+                >
+                  <Text variant="titleMedium">Contratação confirmada</Text>
+                  <Text variant="bodyMedium">
+                    Valor acordado: {formatMoney(data.contratacao.valor)}
+                  </Text>
+                  <Text variant="bodySmall">
+                    Confirmado em{' '}
+                    {new Intl.DateTimeFormat('pt-BR', {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                      timeZone: 'America/Sao_Paulo',
+                    }).format(new Date(data.contratacao.confirmadaEm))}
+                  </Text>
+                </View>
+              )}
+              {profile === 'cliente' && data.status === 'confirmado' && !data.contratacao && (
+                <Button
+                  mode="contained"
+                  onPress={() => router.push(`/cliente/agendamentos/${id}/contratacao`)}
+                >
+                  Confirmar contratação
+                </Button>
+              )}
               {data.status === 'confirmado' && (
                 <InfoBanner icon="info">
                   Seu horário está reservado. Acompanhe este agendamento pela Agenda.
@@ -182,6 +220,12 @@ export function AppointmentDetails({ profile }: { profile: AgendaProfile }) {
           )
         )}
       </ScrollView>
+      <Snackbar
+        visible={contratacaoConfirmada === '1'}
+        onDismiss={() => router.setParams({ contratacaoConfirmada: undefined })}
+      >
+        Contratação confirmada com sucesso!
+      </Snackbar>
     </SafeAreaView>
   );
 }

@@ -27,7 +27,8 @@ export function AppNavigation({ profile }: { profile: keyof typeof destinations 
     pathname.endsWith('/novo') ||
     pathname.endsWith('/orcamento') ||
     pathname.endsWith('/agendar') ||
-    pathname.endsWith('/chat')
+    pathname.endsWith('/chat') ||
+    pathname.endsWith('/contratacao')
   )
     return null;
 

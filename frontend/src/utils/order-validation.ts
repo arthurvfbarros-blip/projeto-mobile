@@ -62,6 +62,7 @@ export function orderStatusLabel(status: string): string {
     em_orcamento: 'Recebendo orçamentos',
     aguardando_confirmacao: 'Aguardando confirmação',
     agendado: 'Agendado',
+    contratado: 'Contratado',
     concluido: 'Concluído',
     cancelado: 'Cancelado',
   };

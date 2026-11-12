@@ -1,6 +1,8 @@
-import 'fast-text-encoding';
-import { Client } from '@stomp/stompjs';
-import { API_URL, getJson, postJson } from '@/services/api';
+import { type Client } from '@stomp/stompjs';
+import { connectRealtime } from '@/services/realtime';
+import { isNotification, type Notificacao } from '@/services/notifications';
+import { type Contratacao } from '@/services/contracts';
+import { getJson, postJson } from '@/services/api';
 import { type NovoEndereco } from '@/services/addresses';
 
 export type ContatoChat = { nome: string; telefone: string | null };
@@ -12,6 +14,7 @@ export type ChatContext = {
   prestador: ContatoChat;
   endereco: NovoEndereco;
   idUsuarioAtual: number;
+  contratacao?: Contratacao | null;
 };
 export type Mensagem = {
   idMensagem: number;
@@ -106,16 +109,12 @@ export function connectChat(
     onDisconnected: () => void;
     onMessage: (m: Mensagem) => void;
     onError: () => void;
+    onNotification?: (notification: Notificacao) => void;
   },
 ): Client {
-  const client = new Client({
-    brokerURL: API_URL.replace(/^http/, 'ws') + '/ws-chat',
-    connectHeaders: { Authorization: 'Bearer ' + token },
-    reconnectDelay: 5000,
-    connectionTimeout: 10000,
-    heartbeatIncoming: 10000,
-    heartbeatOutgoing: 10000,
-    onConnect: () => {
+  return connectRealtime(
+    token,
+    (client) => {
       client.subscribe(`/topic/agendamentos/${id}/mensagens`, (event) => {
         try {
           const m: unknown = JSON.parse(event.body);
@@ -124,12 +123,16 @@ export function connectChat(
           callbacks.onError();
         }
       });
-      callbacks.onConnected();
+      if (callbacks.onNotification)
+        client.subscribe('/user/queue/notificacoes', (event) => {
+          try {
+            const n: unknown = JSON.parse(event.body);
+            if (isNotification(n)) callbacks.onNotification?.(n);
+          } catch {
+            callbacks.onError();
+          }
+        });
     },
-    onWebSocketClose: callbacks.onDisconnected,
-    onWebSocketError: callbacks.onError,
-    onStompError: callbacks.onError,
-  });
-  client.activate();
-  return client;
+    callbacks,
+  );
 }

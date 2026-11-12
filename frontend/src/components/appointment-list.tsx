@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ProviderNotifications } from '@/components/provider-notifications';
 import { AppIcon } from '@/components/app-icon';
 import { RequestListSkeleton } from '@/components/request-list-skeleton';
 import { ScreenHeader } from '@/components/screen-header';
@@ -78,6 +79,7 @@ export function AppointmentList({ profile }: { profile: AgendaProfile }) {
     >
       <ScreenHeader variant="app" title="Meus agendamentos" />
       <ScrollView contentContainerStyle={styles.content}>
+        {profile === 'prestador' && <ProviderNotifications onNotification={load} />}
         <View style={styles.tabs}>
           {periods.map(([value, label]) => (
             <Button
@@ -149,11 +151,13 @@ export function AppointmentList({ profile }: { profile: AgendaProfile }) {
                         },
                       ]}
                     >
-                      {a.status === 'confirmado' && a.situacaoConversa === 'aguardando_conversa'
-                        ? 'Aguardando conversa'
-                        : a.status === 'confirmado' && a.situacaoConversa === 'em_conversa'
-                          ? 'Conversa iniciada'
-                          : appointmentStatus(a.status)}
+                      {a.contratacao && a.status === 'confirmado'
+                        ? 'Serviço contratado'
+                        : a.status === 'confirmado' && a.situacaoConversa === 'aguardando_conversa'
+                          ? 'Aguardando conversa'
+                          : a.status === 'confirmado' && a.situacaoConversa === 'em_conversa'
+                            ? 'Conversa iniciada'
+                            : appointmentStatus(a.status)}
                     </Text>
                     <Text variant="bodySmall">#{a.idAgendamento}</Text>
                   </View>
