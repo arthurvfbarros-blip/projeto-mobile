@@ -1,59 +1,73 @@
 # Projeto Mobile
 
-Aplicativo para contratação de serviços.
+Aplicativo para contratação de serviços, com cadastro de clientes e prestadores, endereços, pedidos, orçamentos, agendamento, chat em tempo real e confirmação da contratação.
 
 ## Tecnologias
 
-- **Backend:** Java 25, Spring Boot, Maven e Spring Data JPA.
-- **Banco de dados:** PostgreSQL.
+- **Frontend:** React Native, Expo, TypeScript, React Native Web e Expo Router.
+- **Backend:** Java 25, Spring Boot, Maven, JPA/Hibernate e Spring Security com JWT.
+- **Banco:** PostgreSQL no Supabase.
+- **Tempo real:** WebSocket com STOMP.
+
+O código está dividido em `frontend/` e `backend/`, com o backend organizado por funcionalidade.
 
 ## Requisitos
 
-- Java 25.
-- Maven.
-- Variáveis de conexão com o PostgreSQL configuradas.
+- JDK 25 e Maven (ou `./mvnw` em `backend/`).
+- Node.js 24.3 ou superior da série 24, com npm.
+- PostgreSQL com o esquema da aplicação já configurado. O backend valida as tabelas, sem criá-las ou atualizá-las automaticamente.
 
-## Variáveis de ambiente
+## Configuração
 
-O backend utiliza estas variáveis para conectar ao PostgreSQL:
+Exporte as variáveis no terminal que executará o backend:
 
-- `DB_URL`: endereço JDBC do banco, como `jdbc:postgresql://HOST:5432/postgres?sslmode=require`.
-- `DB_USERNAME`: usuário do banco.
-- `DB_PASSWORD`: senha do usuário do banco.
+```bash
+export DB_URL='jdbc:postgresql://HOST:5432/postgres?sslmode=require'
+export DB_USERNAME='USUARIO_DO_BANCO'
+export DB_PASSWORD='SENHA_DO_BANCO'
+export JWT_SECRET='SUA_CHAVE_ALEATORIA_COM_PELO_MENOS_32_BYTES'
+```
 
-## Executar o backend
+Gere uma chave com `openssl rand -hex 32` e use o resultado em `JWT_SECRET`. 
 
-Na raiz do projeto, execute:
+## Execução
+
+Backend, a partir da raiz:
 
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-Para verificar o funcionamento, acesse `http://localhost:8080/actuator/health`. O resultado esperado é `{"status":"UP"}`.
+API em `http://localhost:8080`. Verifique a conexão em `/actuator/health`; o retorno esperado é `{"status":"UP"}`.
 
-## Testar o backend
+Frontend, em outro terminal a partir da raiz:
 
-Dentro da pasta `backend/`, execute:
+```bash
+cd frontend
+npm ci
+npm run web
+```
+
+Aplicativo em `http://localhost:8081`. Para outras plataformas, use `npm start`.
+
+Para acessar pelo navegador do celular, defina `EXPO_PUBLIC_API_URL=http://IP_DO_COMPUTADOR:8080` em `frontend/.env.local` e permita a origem `http://IP_DO_COMPUTADOR:8081` na variável `CORS_ALLOWED_ORIGINS` do backend. Por padrão, as origens permitidas são `http://localhost:8081,http://127.0.0.1:8081`. Reinicie os serviços após alterar as configurações.
+
+## Verificações
+
+Dentro de `backend/`:
 
 ```bash
 mvn test
 ```
 
-## Executar o frontend
+Os testes usam H2 em memória.
 
-Com o backend rodando, na raiz do projeto, execute:
-
-```bash
-cd frontend
-npm install
-npx expo start
-```
-
-Em desenvolvimento, o app procura a API na porta `8080` da mesma máquina que roda o `expo start`, então funciona no navegador, no emulador e no celular (pelo Expo Go, na mesma rede Wi-Fi) sem configuração extra. Para usar outro endereço, crie `frontend/.env.local` com:
+Dentro de `frontend/`:
 
 ```bash
-EXPO_PUBLIC_API_URL=http://192.168.0.10:8080
+npm run lint
+npx tsc --noEmit
 ```
 
-No navegador, a API só aceita requisições vindas de `http://localhost:8081` (variável `CORS_ALLOWED_ORIGINS` do backend).
+Para testar o fluxo, use sessões separadas de cliente e prestador. O prestador precisa estar aprovado no banco. Siga: pedido → orçamento → agendamento → mensagem de cada participante → confirmação da contratação.
