@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import br.com.appservicos.backend.categoria.CategoriaServico;
+import br.com.appservicos.backend.api.ConflitoException;
 import br.com.appservicos.backend.usuario.Usuario;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -97,6 +98,14 @@ public class Prestador {
 
 	public String getStatusAprovacao() {
 		return statusAprovacao;
+	}
+
+	public void analisar(String decisao) {
+		if (!"pendente".equals(statusAprovacao)
+				|| !("aprovado".equals(decisao) || "reprovado".equals(decisao))) {
+			throw new ConflitoException("Este cadastro já foi analisado");
+		}
+		statusAprovacao = decisao;
 	}
 
 	public String getCidade() {

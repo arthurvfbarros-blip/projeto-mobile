@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.appservicos.backend.api.CadastroDuplicadoException;
+import br.com.appservicos.backend.administracao.AnalisePrestadorRepository;
 import br.com.appservicos.backend.api.CampoInvalidoException;
 import br.com.appservicos.backend.categoria.CategoriaServicoRepository;
 import br.com.appservicos.backend.prestador.dto.CadastroPrestadorRequest;
@@ -24,15 +25,18 @@ public class PrestadorService {
 	private final CategoriaServicoRepository categorias;
 	private final PasswordEncoder passwordEncoder;
 	private final PrestadorAutenticadoService autenticados;
+	private final AnalisePrestadorRepository analises;
 
 	public PrestadorService(UsuarioRepository usuarios, PrestadorRepository prestadores, EmpresaRepository empresas,
-			CategoriaServicoRepository categorias, PasswordEncoder passwordEncoder, PrestadorAutenticadoService autenticados) {
+			CategoriaServicoRepository categorias, PasswordEncoder passwordEncoder, PrestadorAutenticadoService autenticados,
+			AnalisePrestadorRepository analises) {
 		this.usuarios = usuarios;
 		this.prestadores = prestadores;
 		this.empresas = empresas;
 		this.categorias = categorias;
 		this.passwordEncoder = passwordEncoder;
 		this.autenticados = autenticados;
+		this.analises = analises;
 	}
 
 	@Transactional
@@ -66,6 +70,9 @@ public class PrestadorService {
 
 	@Transactional(readOnly = true)
 	public PrestadorResponse consultarPerfil(String idUsuario) {
-		return PrestadorResponse.from(autenticados.buscar(idUsuario));
+		var prestador = autenticados.buscar(idUsuario);
+		var motivo = "reprovado".equals(prestador.getStatusAprovacao())
+				? analises.findByPrestadorId(prestador.getId()).map(a -> a.getMotivo()).orElse(null) : null;
+		return PrestadorResponse.from(prestador, motivo);
 	}
 }
