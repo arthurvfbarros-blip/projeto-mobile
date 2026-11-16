@@ -104,6 +104,9 @@ export default function ProviderHomeScreen() {
               {profile.statusAprovacao === 'pendente' && (
                 <Text variant="bodyMedium">A equipe está analisando seu perfil profissional.</Text>
               )}
+              {profile.statusAprovacao === 'reprovado' && profile.motivoReprovacao && (
+                <Text variant="bodyMedium">{profile.motivoReprovacao}</Text>
+              )}
             </View>
             <View style={[styles.card, { borderColor: colors.outlineVariant }]}>
               <Text variant="titleMedium">Serviços oferecidos</Text>

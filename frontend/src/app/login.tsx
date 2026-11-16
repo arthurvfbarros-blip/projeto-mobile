@@ -11,6 +11,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { useAppTheme } from '@/constants/theme';
 import { useSession } from '@/providers/session-provider';
 import { ApiError, NetworkError } from '@/services/api';
+import { homeRoute } from '@/services/session';
 
 type FieldErrors = {
   email?: string;
@@ -59,7 +60,7 @@ export default function LoginScreen() {
 
   if (session)
     return (
-      <Redirect href={session.usuario.tipoUsuario === 'cliente' ? '/cliente' : '/prestador'} />
+      <Redirect href={homeRoute(session.usuario.tipoUsuario)} />
     );
 
   return (

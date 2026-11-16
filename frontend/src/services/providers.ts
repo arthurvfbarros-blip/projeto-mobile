@@ -18,7 +18,7 @@ export type ProviderSignUp = {
   };
 };
 
-type ApprovalStatus = 'pendente' | 'aprovado' | 'reprovado';
+export type ApprovalStatus = 'pendente' | 'aprovado' | 'reprovado';
 
 export type ProviderProfile = {
   idPrestador: number;
@@ -28,6 +28,7 @@ export type ProviderProfile = {
   uf: string | null;
   bairros: string[];
   categorias: Categoria[];
+  motivoReprovacao?: string | null;
 };
 
 export async function signUpProvider(data: ProviderSignUp): Promise<void> {
@@ -48,8 +49,16 @@ export async function signUpProvider(data: ProviderSignUp): Promise<void> {
 
 export async function getProviderProfile(accessToken: string): Promise<ProviderProfile> {
   const profile = await getJson<ProviderProfile | null>('/prestadores/me', accessToken);
-  if (
-    !profile ||
+  if (!isProviderProfile(profile)) {
+    throw new Error('O servidor não retornou um perfil de prestador válido.');
+  }
+  return profile;
+}
+
+export function isProviderProfile(value: unknown): value is ProviderProfile {
+  if (!value || typeof value !== 'object') return false;
+  const profile = value as ProviderProfile;
+  return !(
     !Number.isInteger(profile.idPrestador) ||
     profile.idPrestador <= 0 ||
     typeof profile.nome !== 'string' ||
@@ -59,9 +68,7 @@ export async function getProviderProfile(accessToken: string): Promise<ProviderP
     !Array.isArray(profile.bairros) ||
     !profile.bairros.every((bairro) => typeof bairro === 'string') ||
     !Array.isArray(profile.categorias) ||
-    !profile.categorias.every(isCategoria)
-  ) {
-    throw new Error('O servidor não retornou um perfil de prestador válido.');
-  }
-  return profile;
+    !profile.categorias.every(isCategoria) ||
+    (profile.motivoReprovacao != null && typeof profile.motivoReprovacao !== 'string')
+  );
 }
