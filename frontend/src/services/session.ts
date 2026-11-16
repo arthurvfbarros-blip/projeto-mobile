@@ -3,7 +3,11 @@ import { Platform } from 'react-native';
 
 const SESSION_KEY = 'appservicos.session';
 
-export type TipoUsuario = 'cliente' | 'prestador';
+export type TipoUsuario = 'cliente' | 'prestador' | 'administrador';
+
+export function homeRoute(tipoUsuario: TipoUsuario) {
+  return tipoUsuario === 'administrador' ? '/admin' : tipoUsuario === 'cliente' ? '/cliente' : '/prestador';
+}
 
 export type Session = {
   accessToken: string;
@@ -55,7 +59,7 @@ export function isSession(value: unknown): value is Session {
     typeof session.usuario === 'object' && session.usuario !== null &&
     Number.isInteger(session.usuario.id) && session.usuario.id > 0 &&
     typeof session.usuario.email === 'string' &&
-    (session.usuario.tipoUsuario === 'cliente' || session.usuario.tipoUsuario === 'prestador')
+    ['cliente', 'prestador', 'administrador'].includes(session.usuario.tipoUsuario)
   );
 }
 

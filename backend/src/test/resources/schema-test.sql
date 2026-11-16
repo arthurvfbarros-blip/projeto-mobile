@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     id_usuario INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(150) NOT NULL,
     senha_hash VARCHAR(255) NOT NULL,
-    tipo_usuario VARCHAR(20) NOT NULL CHECK (tipo_usuario IN ('cliente', 'prestador')),
+    tipo_usuario VARCHAR(20) NOT NULL CHECK (tipo_usuario IN ('cliente', 'prestador', 'administrador')),
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     CONSTRAINT uq_usuario_email UNIQUE (email)
 );
@@ -67,6 +67,17 @@ CREATE TABLE IF NOT EXISTS prestador (
             'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'
         ))
     )
+);
+
+CREATE TABLE IF NOT EXISTS analise_prestador (
+    id_analise INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_prestador INTEGER NOT NULL UNIQUE REFERENCES prestador(id_prestador),
+    id_administrador INTEGER NOT NULL REFERENCES usuario(id_usuario),
+    decisao VARCHAR(20) NOT NULL CHECK (decisao IN ('aprovado', 'reprovado')),
+    motivo VARCHAR(500),
+    analisada_em TIMESTAMP WITH TIME ZONE NOT NULL,
+    CHECK ((decisao = 'aprovado' AND motivo IS NULL)
+        OR (decisao = 'reprovado' AND motivo IS NOT NULL AND TRIM(motivo) <> ''))
 );
 
 CREATE TABLE IF NOT EXISTS empresa (

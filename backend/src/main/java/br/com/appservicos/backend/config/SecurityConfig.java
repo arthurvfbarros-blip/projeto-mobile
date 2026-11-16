@@ -53,6 +53,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 						.requestMatchers(HttpMethod.GET, "/categorias").permitAll()
 						.requestMatchers("/ws-chat").permitAll()
+						.requestMatchers("/admin", "/admin/**").hasRole("administrador")
 						.requestMatchers("/agendamentos/*/chat", "/agendamentos/*/chat/**").hasAnyRole("cliente", "prestador")
 						.requestMatchers("/clientes/me/enderecos", "/clientes/me/enderecos/**").hasRole("cliente")
 						.requestMatchers("/clientes/me/pedidos", "/clientes/me/pedidos/**").hasRole("cliente")

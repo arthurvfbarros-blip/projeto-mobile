@@ -56,6 +56,9 @@ function RootNavigation() {
       <Stack.Protected guard={session?.usuario.tipoUsuario === 'prestador'}>
         <Stack.Screen name="prestador" />
       </Stack.Protected>
+      <Stack.Protected guard={session?.usuario.tipoUsuario === 'administrador'}>
+        <Stack.Screen name="admin" />
+      </Stack.Protected>
     </Stack>
   );
 }
